@@ -1,5 +1,8 @@
 #include <stdio.h>
 #include "controlunit.h"
+#include "memory.h"
+#include "ALU.h"
+#include "regfile.h"
 
 typedef struct {
 	int opcode;
@@ -50,7 +53,7 @@ int getImmediate(int instruction) {
 }
 
 void fetch(ControlUnit *unit) {
-	int instruction = unit->memory[unit->programCounter];
+	int instruction = unit->memory.read(&(unit->memory), unit->programCounter);
 	unit->instructionRegister = instruction;
 	unit->programCounter++;
 }
@@ -75,19 +78,42 @@ InstructionSet decode(ControlUnit *unit) {
 	return set;
 }
 
-void execute(InstructionSet instruction) {
+void execute(InstructionSet instruction, ControlUnit *unit) {
+	int result;
+	int op1;
+	int op2;
+	printf("%d\n", instruction.opcode);
 	switch(instruction.opcode) {
-		case 0 :
-			printf("Add\n");
+		case 0 : // add
+			op1 = unit->regFile.read(instruction.regY, &(unit->regFile));
+			op2 = unit->regFile.read(instruction.regZ, &(unit->regFile));
+			result = unit->alu.add(op1, op2);
+			unit->regFile.write(instruction.regX, result, &(unit->regFile));
 			break;
-		case 1 :
-			printf("nand\n");
+		case 1 : //nand
+			op1 = unit->regFile.read(instruction.regY, &(unit->regFile));
+			op2 = unit->regFile.read(instruction.regZ, &(unit->regFile));
+			result = unit->alu.nand(op1, op2);
+			unit->regFile.write(instruction.regX, result, &(unit->regFile));
 			break;
-		case 2 :
-			printf("addi\n");
+		case 2 : //addi
+			op1 = unit->regFile.read(instruction.regY, &(unit->regFile));
+			op2 = instruction.immediate;
+			result = unit->alu.add(op1, op2);
+			unit->regFile.write(instruction.regX, result, &(unit->regFile));
 			break;
-		case 3 :
-			printf("lw\n");
+		case 3 : //lw
+			printf("Loading Register\n");
+			op1 = unit->regFile.read(instruction.regY, &(unit->regFile));
+			printf("Operand 1 read as: %d\n", op1);
+			op2 = instruction.immediate;
+			printf("Operand 2 read as: %d\n", op2);
+			result = op1 + op2;
+			printf("Memory location %d read \n", result);
+			result = unit->memory.read(&(unit->memory), result);
+			printf("Memory location %d read \n", op1 + op2);
+			unit->regFile.write(instruction.regX, result, &(unit->regFile));
+			printf("Registers written to \n");
 			break;
 		case 4 :
 			printf("sw\n");
@@ -109,13 +135,16 @@ void execute(InstructionSet instruction) {
 void nextInst(ControlUnit *unit) {
 	fetch(unit);
 	InstructionSet instructions = decode(unit);
-	execute(instructions);
+	execute(instructions, unit);
 }
 
-ControlUnit controlUnitConst(int pc, int *mem) {
+ControlUnit controlUnitConst(int pc, int memSize) {
 	ControlUnit unit;
 	unit.programCounter = pc;
-	unit.memory = mem;
+	Memory* mem = createMemory(memSize);
+	unit.memory = *mem;
+	unit.alu = aluConst();
+	unit.regFile = regFileConst();
 	unit.nextInst = nextInst;
 	return unit;
 }
