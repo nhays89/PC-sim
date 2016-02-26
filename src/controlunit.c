@@ -78,64 +78,79 @@ InstructionSet decode(ControlUnit *unit) {
 	return set;
 }
 
-void execute(InstructionSet instruction, ControlUnit *unit) {
-	int result;
+int execute(InstructionSet instruction, ControlUnit *unit) {
 	int op1;
 	int op2;
-	printf("%d\n", instruction.opcode);
+	int immmediate;
+	int address;
+	int result;
+	
 	switch(instruction.opcode) {
 		case 0 : // add
-			op1 = unit->regFile.read(instruction.regY, &(unit->regFile));
-			op2 = unit->regFile.read(instruction.regZ, &(unit->regFile));
-			result = unit->alu.add(op1, op2);
-			unit->regFile.write(instruction.regX, result, &(unit->regFile));
+			op1 = unit->regFile.read(instruction.regY, &(unit->regFile));		//get regY
+			op2 = unit->regFile.read(instruction.regZ, &(unit->regFile));		//get regZ
+			result = unit->alu.add(op1, op2);									//a = regY + regZ
+			unit->regFile.write(instruction.regX, result, &(unit->regFile));	//regX = a
+			return 0;
 			break;
 		case 1 : //nand
-			op1 = unit->regFile.read(instruction.regY, &(unit->regFile));
-			op2 = unit->regFile.read(instruction.regZ, &(unit->regFile));
-			result = unit->alu.nand(op1, op2);
-			unit->regFile.write(instruction.regX, result, &(unit->regFile));
+			op1 = unit->regFile.read(instruction.regY, &(unit->regFile));		//get regY
+			op2 = unit->regFile.read(instruction.regZ, &(unit->regFile));		//get regZ
+			result = unit->alu.nand(op1, op2);									//a = !(regY & regZ)
+			unit->regFile.write(instruction.regX, result, &(unit->regFile));	//regX = a
+			return 0;
 			break;
 		case 2 : //addi
-			op1 = unit->regFile.read(instruction.regY, &(unit->regFile));
-			op2 = instruction.immediate;
-			result = unit->alu.add(op1, op2);
-			unit->regFile.write(instruction.regX, result, &(unit->regFile));
+			op1 = unit->regFile.read(instruction.regY, &(unit->regFile));		//get regY
+			op2 = instruction.immediate;										//get immediate
+			result = unit->alu.add(op1, op2);									//a = regY + immediate
+			unit->regFile.write(instruction.regX, result, &(unit->regFile));	//regX = a
+			return 0;
 			break;
 		case 3 : //lw
-			printf("Loading Register\n");
-			op1 = unit->regFile.read(instruction.regY, &(unit->regFile));
-			printf("Operand 1 read as: %d\n", op1);
-			op2 = instruction.immediate;
-			printf("Operand 2 read as: %d\n", op2);
-			result = op1 + op2;
-			printf("Memory location %d read \n", result);
-			result = unit->memory.read(&(unit->memory), result);
-			printf("Memory location %d read \n", op1 + op2);
-			unit->regFile.write(instruction.regX, result, &(unit->regFile));
-			printf("Registers written to \n");
+			op1 = unit->regFile.read(instruction.regY, &(unit->regFile));		//get regY
+			op2 = instruction.immediate;										//get immediate
+			address = unit->alu.add(op1, op2);									//address = regY + immediate
+			result = unit->memory.read(&(unit->memory), address);				//a = MEM[address]
+			unit->regFile.write(instruction.regX, result, &(unit->regFile));	//regX = a
+			return 0;
 			break;
-		case 4 :
-			printf("sw\n");
+		case 4 : //sw
+			op1 = unit->regFile.read(instruction.regX, &(unit->regFile));		//get regX
+			op2 = unit->regFile.read(instruction.regY, &(unit->regFile));		//get regY
+			immmediate = instruction.immediate;									//get immediate
+			address = unit->alu.add(immmediate, op2);							//address = immediate + regY
+			unit->memory.write(&(unit->memory), immmediate + op2, op1);			//Mem[address] = regX
+			return 0;
 			break;
-		case 5 :
-			printf("beq\n");
+		case 5 : //beq
+			op1 = unit->regFile.read(instruction.regX, &(unit->regFile));		//get regX
+			op2 = unit->regFile.read(instruction.regY, &(unit->regFile));		//get regY
+			immmediate = instruction.immediate;									//get immediate
+			if (unit->alu.isEqual(op1, op2)) {									//if regX = regY
+				unit->programCounter += immmediate;								//PC = PC + immediate
+			}
+			return 0;
 			break;
-		case 6 :
-			printf("jalr\n");
+		case 6 : //jalr
+			op1 = unit->regFile.read(instruction.regX, &(unit->regFile));						//Get val of regX
+			unit->regFile.write(instruction.regY, unit->programCounter, &(unit->regFile));		//Save PC to regY
+			unit->programCounter = op1;															//Set PC to regY
+			return 0;
 			break;
-		case 7 :
-			printf("halt\n");
+		case 7 : //halt
+			return 1;
 			break;
 		default :
 			printf("NOP\n");
+			return 0;
 	};
 }
 
-void nextInst(ControlUnit *unit) {
+int nextInst(ControlUnit *unit) {
 	fetch(unit);
 	InstructionSet instructions = decode(unit);
-	execute(instructions, unit);
+	return execute(instructions, unit);
 }
 
 ControlUnit controlUnitConst(int pc, int memSize) {

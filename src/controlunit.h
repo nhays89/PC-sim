@@ -12,7 +12,7 @@ typedef struct ControlUnit{
 	Memory memory;
 	ALU alu;
 	RegFile regFile;
-	void (*nextInst)(struct ControlUnit*);
+	int (*nextInst)(struct ControlUnit*);
 } ControlUnit;
 
 ControlUnit controlUnitConst(int, int);
