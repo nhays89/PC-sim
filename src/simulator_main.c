@@ -1,12 +1,21 @@
 // author: Nicholas hays
 #include <gtk/gtk.h>
 //#include <gdk/gdkkeysyms.h>
-enum
+ enum
 {
   COL_ADDRESS = 0,
   COL_VALUE,
-  NUM_COLS
+  NUM_INSTRUCTION_COLS
+} ; 
+enum 
+{
+	REG_NUM,
+	REG_VAL,
+	NUM_REGISTER_COLS
+	
 } ;
+
+
  void // initialize values 
   write_to_list_store (GtkListStore *liststore, gchar *startRow, gchar *binString)
   {
@@ -22,7 +31,7 @@ enum
 	// in the list store to match what
 	
     /* get path to the row in the tree model hard coded right now */
-	pathToRow = gtk_tree_path_new_from_string(startRow);
+	pathToRow = gtk_tree_path_new_from_string("1:2000");
 	
 	// only operate on this row if the row has been added to the model.
     valid = gtk_tree_model_get_iter(GTK_TREE_MODEL(liststore), &iter, pathToRow);
@@ -55,19 +64,42 @@ tree_selection_changed_cb (GtkTreeSelection *selection, gpointer data)
 
         if (gtk_tree_selection_get_selected (selection, &model, &iter))
         {
-                gtk_tree_model_get (model, &iter, COL_ADDRESS, &address, -1);
+				gtk_tree_model_get (model, &iter, COL_ADDRESS, &address, -1);
 
-                g_print ("%" G_GUINT32_FORMAT, address);
+                g_print ("The value at address %" G_GUINT32_FORMAT, address);
+				gtk_tree_model_get (model, &iter, COL_VALUE, &instruction, -1);
 				
-				 gtk_tree_model_get (model, &iter, COL_VALUE, &instruction, -1);
-				
-				g_print ("The value of the instruction is %s\n", instruction);
+				g_print (" is: %s", instruction);
+				g_print("\n");
+				 
 
                 //g_free (address);
 				g_free (instruction);
         }
 }
-  
+static void
+reg_tree_selection_changed_cb (GtkTreeSelection *selection, gpointer data)
+{
+        GtkTreeIter iter;
+        GtkTreeModel *model;
+        gchar *reg_num;
+		guint reg_val;
+
+        if (gtk_tree_selection_get_selected (selection, &model, &iter))
+        {
+                gtk_tree_model_get (model, &iter, REG_NUM, &reg_num, -1);
+
+					g_print ("The value of %s ", reg_num);
+
+				 gtk_tree_model_get (model, &iter, REG_VAL, &reg_val, -1);
+				
+				g_print ("is: %" G_GUINT32_FORMAT, reg_val);
+				g_print("\n");
+				
+                //g_free (address);
+				//g_free (instruction);
+        }
+}
 void
 onTreeViewRowActivated (GtkTreeView *view, GtkTreePath *path,
                         GtkTreeViewColumn *col, gpointer userdata)
@@ -95,12 +127,12 @@ onTreeViewRowActivated (GtkTreeView *view, GtkTreePath *path,
 //case we are using a store that will be a list, referreded in gtk as a "liststore") by adding values i.e "000..." to each row in
 //our list. 
 static GtkTreeModel *
-create_and_fill_model (void)
+create_and_fill_instruction_model (void)
 {
   GtkListStore  *store;
   GtkTreeIter    iter;
   
-  store = gtk_list_store_new (NUM_COLS, G_TYPE_UINT, G_TYPE_STRING);
+  store = gtk_list_store_new (NUM_INSTRUCTION_COLS, G_TYPE_UINT, G_TYPE_STRING);
   int i;
 for(i = 0; i < 1000; i++) {
   /* Append a row and fill in some data */
@@ -114,6 +146,32 @@ for(i = 0; i < 1000; i++) {
   return GTK_TREE_MODEL (store);
 }
 
+//register model
+static GtkTreeModel *
+create_and_fill_register_model (void)
+{
+  GtkListStore  *store;
+  GtkTreeIter    iter;
+  
+  store = gtk_list_store_new (NUM_REGISTER_COLS, G_TYPE_STRING, G_TYPE_UINT);
+  int i;
+for(i = 0; i < 16; i++) {
+  /* Append a row and fill in some data */
+  gchar *my_reg_num = g_strdup_printf("R%i", i);
+  gtk_list_store_append (store, &iter);
+  /* gtk_list_store_set (store, &iter, 
+					  REG_NUM, ) */
+ /*  gtk_list_store_set (store, &iter,
+                      REG_NUM, (guint32) i,
+                      REG_VAL, "0",
+                      -1); */
+	gtk_list_store_set (store, &iter,
+                      REG_NUM, my_reg_num,
+                      REG_VAL, (guint32) (guint32) i + 100,
+                      -1);
+}
+  return GTK_TREE_MODEL (store);
+}
 //this method will do two things
 //1. It will create the TreeView (a generic widget for displaying content from a store) with a couple columns 
 //(i.e a column for the hex address corresponding to the actual address of the instruction stored in memory, 
@@ -121,7 +179,7 @@ for(i = 0; i < 1000; i++) {
 //2. It will connect the previously created store to the view, so that the view now has a reference to the model (our instructions).
 
 static GtkWidget *
-create_view_and_model (void)
+create_instruction_view_and_model (void)
 {
   GtkCellRenderer     *renderer;
   GtkTreeModel        *model;
@@ -149,7 +207,7 @@ create_view_and_model (void)
                                                "text", COL_VALUE,
                                                NULL);
 
-  model = create_and_fill_model ();
+  model = create_and_fill_instruction_model ();
 
   gtk_tree_view_set_model (GTK_TREE_VIEW (view), model);
 
@@ -162,7 +220,47 @@ create_view_and_model (void)
   return view;
 }
 
+static GtkWidget *
+create_register_view_and_model (void)
+{
+  GtkCellRenderer     *renderer;
+  GtkTreeModel        *model;
+  GtkWidget           *view;
 
+  view = gtk_tree_view_new ();
+
+  /* --- Column #1 --- */
+
+  renderer = gtk_cell_renderer_text_new ();
+  gtk_tree_view_insert_column_with_attributes (GTK_TREE_VIEW (view),
+                                               -1,      
+                                               "Register",  
+                                               renderer,
+                                               "text", REG_NUM,
+                                               NULL);
+
+  /* --- Column #2 --- */
+
+  renderer = gtk_cell_renderer_text_new ();
+  gtk_tree_view_insert_column_with_attributes (GTK_TREE_VIEW (view),
+                                               -1,      
+                                               "Value",  
+                                               renderer,
+                                               "text", REG_VAL,
+                                               NULL);
+
+  model = create_and_fill_register_model ();
+
+  gtk_tree_view_set_model (GTK_TREE_VIEW (view), model);
+
+  /* The tree view has acquired its own reference to the
+   *  model, so we can drop ours. That way the model will
+   *  be freed automatically when the tree view is destroyed */
+
+  g_object_unref (model);
+
+  return view;
+}
 //call back function to properly destroy the resources associated with the 
 //main widget. 
 void 
@@ -186,12 +284,13 @@ init_default_styling(GtkWindow *window) {
 // next instruction.  
 gboolean 
 advanceLine(GtkWidget *widget, GdkEventKey *event, gpointer user_data) {
-
+	//GtkTreeIter   iter;
+	//GtkTreeModel *model;
 	guint keycode = event->keyval;
-	g_print("keycode equals %d", keycode);
+	
 	if(keycode == gdk_keyval_from_name("F5")) {
-		g_print("inside key code if");
-		
+		g_print("keycode equals %d", keycode);
+		//model = gtk_tree_view_get_model(GTK_TREE_VIEW(widget));	
 	}
 return 1;
 }
@@ -200,14 +299,17 @@ int
 main (int argc, char **argv)
 {
 	/* css */
-	GtkCssProvider *provider;
-	GdkDisplay *display;
-	GdkScreen *screen;
+	//GtkCssProvider *provider;
+	//GdkDisplay *display;
+	//GdkScreen *screen;
   
-	GtkTreeSelection *select; 	
+	GtkTreeSelection *instruction_select; 	
+	GtkTreeSelection *reg_select;
 	GtkWidget *window;
-	GtkWidget *view;
-	GtkWidget *scrolled_window;
+	GtkWidget *instr_tree_view;
+	GtkWidget *reg_tree_view;
+	GtkWidget *instr_scrolled_window;
+	GtkWidget *reg_scrolled_window;
 	GtkWidget *box;
 	//GtkWidget *pane;
  
@@ -224,11 +326,14 @@ main (int argc, char **argv)
 	init_default_styling(GTK_WINDOW(window));
 
 	box = gtk_box_new(GTK_ORIENTATION_VERTICAL, 5);
-	scrolled_window = gtk_scrolled_window_new (NULL, NULL);
-	gtk_scrolled_window_set_policy (GTK_SCROLLED_WINDOW (scrolled_window),
+	instr_scrolled_window = gtk_scrolled_window_new (NULL, NULL);
+	reg_scrolled_window = gtk_scrolled_window_new (NULL, NULL);
+	gtk_scrolled_window_set_policy (GTK_SCROLLED_WINDOW (instr_scrolled_window),
                                     GTK_POLICY_AUTOMATIC, GTK_POLICY_ALWAYS);
-	view = create_view_and_model ();
-	
+	gtk_scrolled_window_set_policy (GTK_SCROLLED_WINDOW (reg_scrolled_window),
+                                    GTK_POLICY_AUTOMATIC, GTK_POLICY_ALWAYS);				
+	instr_tree_view = create_instruction_view_and_model ();
+	reg_tree_view = create_register_view_and_model ();
 	/* menu bar */
 	
 	menu_bar = gtk_menu_bar_new();
@@ -246,33 +351,43 @@ main (int argc, char **argv)
 	/*add components to layout container */
 	
 	//gtk_container_add(GTK_CONTAINER(pane));
-	gtk_container_add (GTK_CONTAINER(scrolled_window), view);
+	gtk_container_add( GTK_CONTAINER(reg_scrolled_window), reg_tree_view);
+	gtk_container_add (GTK_CONTAINER(instr_scrolled_window), instr_tree_view);
 	gtk_box_pack_start(GTK_BOX(box), menu_bar,FALSE, FALSE, 0);
-	gtk_box_pack_start(GTK_BOX(box), scrolled_window, TRUE, TRUE, 0);
+	gtk_box_pack_start(GTK_BOX(box), reg_scrolled_window, TRUE, TRUE, 0);
+	gtk_box_pack_start(GTK_BOX(box), instr_scrolled_window, TRUE, TRUE, 0);
 	//gtk_grid_attach (GTK_GRID (grid), menu_bar, 0,0,5,5);
 	
 	//gtk_grid_attach(GTK_GRID(grid), scrolled_window,1, 0, 5,5);
 	gtk_container_add(GTK_CONTAINER(window), box);
 	
 
-  provider = gtk_css_provider_new ();
+/*   provider = gtk_css_provider_new ();
   display = gdk_display_get_default ();
   screen = gdk_display_get_default_screen (display);
   gtk_style_context_add_provider_for_screen (screen, GTK_STYLE_PROVIDER (provider), GTK_STYLE_PROVIDER_PRIORITY_APPLICATION);
 
- gtk_css_provider_load_from_data (GTK_CSS_PROVIDER(provider),"GtkTreeView {\n background-color: black;\n}\n GtkWindow {\n background-color: black;\n}\n",-1, NULL); 
+ gtk_css_provider_load_from_data (GTK_CSS_PROVIDER(provider),"GtkTreeView {\n background-color: black;\n}\n GtkWindow {\n background-color: black;\n}\n",-1, NULL);  */
 
  
-  g_object_unref (provider);
+  //g_object_unref (provider);
 									
   					
   g_signal_connect (window, "delete_event", G_CALLBACK(on_window_main_destroy), NULL); /* dirty */
-  //g_signal_connect (view, "row-activated", G_CALLBACK(write_to_list_store), NULL); 
-  g_signal_connect (view, "row-activated",  G_CALLBACK(onTreeViewRowActivated), NULL);
-  g_signal_connect(G_OBJECT(view), "key-press-event", G_CALLBACK(advanceLine), NULL);
-  select = gtk_tree_view_get_selection (GTK_TREE_VIEW (view));
-  gtk_tree_selection_set_mode (select, GTK_SELECTION_SINGLE);
-  g_signal_connect (G_OBJECT (select), "changed",
+  //g_signal_connect (instr_tree_view, "row-activated", G_CALLBACK(write_to_list_store), NULL); 
+  g_signal_connect (instr_tree_view, "row-activated",  G_CALLBACK(onTreeViewRowActivated), NULL);
+   g_signal_connect (reg_tree_view, "row-activated",  G_CALLBACK(onTreeViewRowActivated), NULL);
+  g_signal_connect(G_OBJECT(instr_tree_view), "key-press-event", G_CALLBACK(advanceLine), NULL);
+  
+  reg_select = gtk_tree_view_get_selection (GTK_TREE_VIEW (reg_tree_view));
+  instruction_select = gtk_tree_view_get_selection (GTK_TREE_VIEW (instr_tree_view));
+  
+  gtk_tree_selection_set_mode (reg_select, GTK_SELECTION_SINGLE);
+   gtk_tree_selection_set_mode (instruction_select, GTK_SELECTION_SINGLE);
+  g_signal_connect (G_OBJECT (reg_select), "changed",
+                  G_CALLBACK (reg_tree_selection_changed_cb),
+                  NULL);
+  g_signal_connect (G_OBJECT (instruction_select), "changed",
                   G_CALLBACK (tree_selection_changed_cb),
                   NULL);
   gtk_widget_show_all (window);
