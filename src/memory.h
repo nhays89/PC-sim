@@ -7,6 +7,7 @@ typedef struct Memory
     void (*destroyMemory)(struct Memory *self);
     void (*write)(struct Memory *self,int addr, int value);
     int (*read)(struct Memory *self, int addr);
+	int size;
 } Memory;
 
 Memory *createMemory(int size);

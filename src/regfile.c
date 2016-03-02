@@ -2,18 +2,22 @@
 #include <string.h>
 #include "regfile.h"
 
-int read_Register(int index, RegFile *regFile) {
-	return regFile->registers[index];
+int read_Register(int regNum, RegFile *regFile) {
+	return regFile->registers[regNum];
 }
 
-void write_Register(int index, int value, RegFile *regFile) {
-	regFile->registers[index] = value;
+void write_Register(int regNum, int value, RegFile *regFile) {
+	regFile->registers[regNum] = value;
 }
 
-RegFile regFileConst() {
-	RegFile regs;
-	memset(regs.registers, 0, sizeof(int)*16);
-	regs.read = read_Register;
-	regs.write = write_Register;
+void regFileDeconst(RegFile *file) {
+	free(file);
+}
+
+RegFile *regFileConst() {
+	RegFile *regs = calloc(1, sizeof(RegFile));
+	//memset(regs->registers, 0, sizeof(int)*16);
+	regs->read = read_Register;
+	regs->write = write_Register;
 	return regs;
 }

@@ -7,8 +7,9 @@ typedef struct RegFile{
 	void (*write)(int, int, struct RegFile*);
 } RegFile;
 
-RegFile regFileConst();
-int read_Register(int, RegFile*);
-void write_Register(int, int, RegFile*);
+RegFile *regFileConst();
+void regFileDeconst(RegFile *file);
+int read_Register(int regNum, RegFile* file);
+void write_Register(int regNum, int value, RegFile* file);
 
 #endif

@@ -16,6 +16,8 @@ int isEqual(int x, int y);
 
 int increment(int x);
 
-ALU aluConst();
+ALU *aluConst();
+
+void aluDeconst(ALU *alu);
 
 #endif // ALU_H_

@@ -9,13 +9,13 @@
 typedef struct ControlUnit{
 	int instructionRegister;
 	int programCounter;
-	Memory memory;
-	ALU alu;
-	RegFile regFile;
+	Memory *memory;
+	ALU *alu;
+	RegFile *regFile;
 	int (*nextInst)(struct ControlUnit*);
 } ControlUnit;
 
-ControlUnit controlUnitConst(int, int);
+ControlUnit *controlUnitConst(int pc, int memSize);
 
 
 #endif /* CONTROLUNIT_H */

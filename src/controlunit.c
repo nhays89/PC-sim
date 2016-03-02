@@ -1,4 +1,5 @@
 #include <stdio.h>
+#include <stdlib.h>
 #include "controlunit.h"
 #include "memory.h"
 #include "ALU.h"
@@ -53,7 +54,7 @@ int getImmediate(int instruction) {
 }
 
 void fetch(ControlUnit *unit) {
-	int instruction = unit->memory.read(&(unit->memory), unit->programCounter);
+	int instruction = unit->memory->read(unit->memory, unit->programCounter);
 	unit->instructionRegister = instruction;
 	unit->programCounter++;
 }
@@ -87,54 +88,54 @@ int execute(InstructionSet instruction, ControlUnit *unit) {
 	
 	switch(instruction.opcode) {
 		case 0 : // add
-			op1 = unit->regFile.read(instruction.regY, &(unit->regFile));		//get regY
-			op2 = unit->regFile.read(instruction.regZ, &(unit->regFile));		//get regZ
-			result = unit->alu.add(op1, op2);									//a = regY + regZ
-			unit->regFile.write(instruction.regX, result, &(unit->regFile));	//regX = a
+			op1 = unit->regFile->read(instruction.regY, unit->regFile);		//get regY
+			op2 = unit->regFile->read(instruction.regZ, unit->regFile);		//get regZ
+			result = unit->alu->add(op1, op2);									//a = regY + regZ
+			unit->regFile->write(instruction.regX, result, unit->regFile);	//regX = a
 			return 0;
 			break;
 		case 1 : //nand
-			op1 = unit->regFile.read(instruction.regY, &(unit->regFile));		//get regY
-			op2 = unit->regFile.read(instruction.regZ, &(unit->regFile));		//get regZ
-			result = unit->alu.nand(op1, op2);									//a = !(regY & regZ)
-			unit->regFile.write(instruction.regX, result, &(unit->regFile));	//regX = a
+			op1 = unit->regFile->read(instruction.regY, unit->regFile);		//get regY
+			op2 = unit->regFile->read(instruction.regZ, unit->regFile);		//get regZ
+			result = unit->alu->nand(op1, op2);									//a = !(regY & regZ)
+			unit->regFile->write(instruction.regX, result, unit->regFile);	//regX = a
 			return 0;
 			break;
 		case 2 : //addi
-			op1 = unit->regFile.read(instruction.regY, &(unit->regFile));		//get regY
+			op1 = unit->regFile->read(instruction.regY, unit->regFile);		//get regY
 			op2 = instruction.immediate;										//get immediate
-			result = unit->alu.add(op1, op2);									//a = regY + immediate
-			unit->regFile.write(instruction.regX, result, &(unit->regFile));	//regX = a
+			result = unit->alu->add(op1, op2);									//a = regY + immediate
+			unit->regFile->write(instruction.regX, result, unit->regFile);	//regX = a
 			return 0;
 			break;
 		case 3 : //lw
-			op1 = unit->regFile.read(instruction.regY, &(unit->regFile));		//get regY
+			op1 = unit->regFile->read(instruction.regY, unit->regFile);		//get regY
 			op2 = instruction.immediate;										//get immediate
-			address = unit->alu.add(op1, op2);									//address = regY + immediate
-			result = unit->memory.read(&(unit->memory), address);				//a = MEM[address]
-			unit->regFile.write(instruction.regX, result, &(unit->regFile));	//regX = a
+			address = unit->alu->add(op1, op2);									//address = regY + immediate
+			result = unit->memory->read(unit->memory, address);				//a = MEM[address]
+			unit->regFile->write(instruction.regX, result, unit->regFile);	//regX = a
 			return 0;
 			break;
 		case 4 : //sw
-			op1 = unit->regFile.read(instruction.regX, &(unit->regFile));		//get regX
-			op2 = unit->regFile.read(instruction.regY, &(unit->regFile));		//get regY
+			op1 = unit->regFile->read(instruction.regX, unit->regFile);		//get regX
+			op2 = unit->regFile->read(instruction.regY, unit->regFile);		//get regY
 			immmediate = instruction.immediate;									//get immediate
-			address = unit->alu.add(immmediate, op2);							//address = immediate + regY
-			unit->memory.write(&(unit->memory), immmediate + op2, op1);			//Mem[address] = regX
+			address = unit->alu->add(immmediate, op2);							//address = immediate + regY
+			unit->memory->write(unit->memory, immmediate + op2, op1);			//Mem[address] = regX
 			return 0;
 			break;
 		case 5 : //beq
-			op1 = unit->regFile.read(instruction.regX, &(unit->regFile));		//get regX
-			op2 = unit->regFile.read(instruction.regY, &(unit->regFile));		//get regY
+			op1 = unit->regFile->read(instruction.regX, unit->regFile);		//get regX
+			op2 = unit->regFile->read(instruction.regY, unit->regFile);		//get regY
 			immmediate = instruction.immediate;									//get immediate
-			if (unit->alu.isEqual(op1, op2)) {									//if regX = regY
+			if (unit->alu->isEqual(op1, op2)) {									//if regX = regY
 				unit->programCounter += immmediate;								//PC = PC + immediate
 			}
 			return 0;
 			break;
 		case 6 : //jalr
-			op1 = unit->regFile.read(instruction.regX, &(unit->regFile));						//Get val of regX
-			unit->regFile.write(instruction.regY, unit->programCounter, &(unit->regFile));		//Save PC to regY
+			op1 = unit->regFile->read(instruction.regX, unit->regFile);						//Get val of regX
+			unit->regFile->write(instruction.regY, unit->programCounter, unit->regFile);		//Save PC to regY
 			unit->programCounter = op1;															//Set PC to regY
 			return 0;
 			break;
@@ -153,14 +154,20 @@ int nextInst(ControlUnit *unit) {
 	return execute(instructions, unit);
 }
 
-ControlUnit controlUnitConst(int pc, int memSize) {
-	ControlUnit unit;
-	unit.programCounter = pc;
-	Memory* mem = createMemory(memSize);
-	unit.memory = *mem;
-	unit.alu = aluConst();
-	unit.regFile = regFileConst();
-	unit.nextInst = nextInst;
+void controlUnitDeconst(ControlUnit *unit) {
+	aluDeconst(unit->alu);
+	regFileDeconst(unit->regFile);
+	destroyMemory(unit->memory);
+	free(unit);
+}
+
+ControlUnit *controlUnitConst(int pc, int memSize) {
+	ControlUnit *unit = calloc(1, sizeof(ControlUnit));
+	unit->programCounter = pc;
+	unit->memory = createMemory(memSize);
+	unit->alu = aluConst();
+	unit->regFile = regFileConst();
+	unit->nextInst = nextInst;
 	return unit;
 }
 

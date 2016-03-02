@@ -9,6 +9,7 @@ Memory *createMemory(int size)
     result->write = write;
     result->destroyMemory = destroyMemory;
     result->read = read;
+	result->size = size;
     return result;
 } 
 
