@@ -29,6 +29,7 @@ enum
 } ;
 
 struct UpdateData {
+	GtkTreeView *instView;
 	GtkListStore *instList;
 	GtkListStore *regList;
 	ControlUnit *unit;
@@ -55,6 +56,7 @@ void refresh_lists (struct UpdateData *data) {
 	ControlUnit *unit = data->unit;
 	GtkListStore *regList = GTK_LIST_STORE(data->regList);
 	GtkListStore *instructionList = GTK_LIST_STORE(data->instList);
+	GtkTreeView *view = data->instView;
 	
 	//Update Instruction List
 	g_return_if_fail(instructionList != NULL);
@@ -70,6 +72,12 @@ void refresh_lists (struct UpdateData *data) {
 		gtk_list_store_set(instructionList, &iter, 1, get32BitIntString(updatedValue), -1);
 	}
 	
+	//set highlighted path
+	GtkTreeSelection *selection = gtk_tree_view_get_selection(view);
+	sprintf(path, "%d", unit->programCounter);
+	pathToRow = gtk_tree_path_new_from_string(path);
+	gtk_tree_selection_select_path(selection, pathToRow);
+	
 	//Update Register List
 	g_return_if_fail(regList != NULL);
 	updatedAddress = unit->regFile->lastModified;
@@ -81,7 +89,6 @@ void refresh_lists (struct UpdateData *data) {
 	if (valid) {
 		gtk_list_store_set(regList, &iter, 1, updatedValue, -1);
 	}
-	
 }
 
 
@@ -520,7 +527,7 @@ int	main (int argc, char **argv){
 	
 	GtkTreeModel *instModel = gtk_tree_view_get_model(GTK_TREE_VIEW(instr_tree_view));
 	GtkTreeModel *regModel = gtk_tree_view_get_model(GTK_TREE_VIEW(reg_tree_view));
-	struct UpdateData data = {GTK_LIST_STORE(instModel), GTK_LIST_STORE(regModel), unit};
+	struct UpdateData data = {GTK_TREE_VIEW(instr_tree_view), GTK_LIST_STORE(instModel), GTK_LIST_STORE(regModel), unit};
     g_signal_connect(G_OBJECT(load_program_menu_item), "activate", G_CALLBACK(load_binary_file), &data);
 	
     g_signal_connect (window, "delete_event", G_CALLBACK(on_window_main_destroy), NULL); /* dirty */
