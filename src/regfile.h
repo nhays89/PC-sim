@@ -5,6 +5,7 @@ typedef struct RegFile{
 	int registers[16];
 	int (*read)(int, struct RegFile*);
 	void (*write)(int, int, struct RegFile*);
+	int lastModified;
 } RegFile;
 
 RegFile *regFileConst();

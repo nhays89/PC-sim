@@ -4,8 +4,8 @@
 
 Memory *createMemory(int size)
 {
-    Memory *result = malloc(sizeof(Memory));
-    result->words =  malloc(sizeof(int) * size);
+    Memory *result = calloc(1, sizeof(Memory));
+    result->words =  calloc(1, sizeof(int) * size);
     result->write = write;
     result->destroyMemory = destroyMemory;
     result->read = read;
@@ -22,6 +22,7 @@ void destroyMemory(Memory *self)
 void write(Memory *self, int addr, int value)
 {
     self->words[addr] = value;
+	self->lastModified = addr;
 }
 
 int read(Memory *self, int addr)

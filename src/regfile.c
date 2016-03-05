@@ -8,6 +8,7 @@ int read_Register(int regNum, RegFile *regFile) {
 
 void write_Register(int regNum, int value, RegFile *regFile) {
 	regFile->registers[regNum] = value;
+	regFile->lastModified = regNum;
 }
 
 void regFileDeconst(RegFile *file) {

@@ -8,6 +8,7 @@ typedef struct Memory
     void (*write)(struct Memory *self,int addr, int value);
     int (*read)(struct Memory *self, int addr);
 	int size;
+	int lastModified;
 } Memory;
 
 Memory *createMemory(int size);

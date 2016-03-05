@@ -17,5 +17,6 @@ typedef struct ControlUnit{
 
 ControlUnit *controlUnitConst(int pc, int memSize);
 
+void controlUnitDeconst(ControlUnit *unit);
 
 #endif /* CONTROLUNIT_H */
