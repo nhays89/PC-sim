@@ -29,7 +29,8 @@ enum
 } ;
 
 struct UpdateData {
-	GtkTreeModel *list;
+	GtkTreeModel *instList;
+	GtkTreeModel *regList;
 	ControlUnit *unit;
 };
 
@@ -47,26 +48,40 @@ char *get32BitIntString (int value) {
 	return bits;
 }
 
-void refresh_instruction_list (GtkListStore *list, Memory *mem) {
+void refresh_lists (struct UpdateData *data) {
 	GtkTreeIter  iter;
 	gboolean     valid;
 	GtkTreePath *pathToRow;
-	g_return_if_fail(list != NULL);
+	ControlUnit *unit = data->unit;
+	GtkListStore *regList = GTK_LIST_STORE(data->regList);
+	GtkListStore *instructionList = GTK_LIST_STORE(data->instList);
 	
-	int maxMemAddressSize = log10(mem->size);
+	//Update Instruction List
+	g_return_if_fail(instructionList != NULL);
+	int maxMemAddressSize = log10(unit->memory->size);
 	char path[3 + maxMemAddressSize];
-	int updatedAddress = mem->lastModified;
-	int updatedValue = mem->read(mem, updatedAddress);
-	printf("Refreshing line: %d, with: %d\n", updatedAddress, updatedValue);
-	
+	int updatedAddress = unit->memory->lastModified;
+	int updatedValue = unit->memory->read(unit->memory, updatedAddress);
+	printf("Memory address %d updated to %d\n", updatedAddress, updatedValue);
 	sprintf(path, "%d", updatedAddress);
 	pathToRow = gtk_tree_path_new_from_string(path);
-	
-    valid = gtk_tree_model_get_iter(GTK_TREE_MODEL(list), &iter, pathToRow);
-	
+    valid = gtk_tree_model_get_iter(GTK_TREE_MODEL(instructionList), &iter, pathToRow);
 	if (valid) {
-		gtk_list_store_set(list, &iter, 1, get32BitIntString(updatedValue), -1);
+		gtk_list_store_set(instructionList, &iter, 1, get32BitIntString(updatedValue), -1);
 	}
+	
+	//Update Register List
+	g_return_if_fail(regList != NULL);
+	updatedAddress = unit->regFile->lastModified;
+	updatedValue = unit->regFile->read(updatedAddress,unit->regFile);
+	printf("Register %d updated to %d\n", updatedAddress, updatedValue);
+	sprintf(path, "%d", updatedAddress + 2);
+	pathToRow = gtk_tree_path_new_from_string(path);
+    valid = gtk_tree_model_get_iter(GTK_TREE_MODEL(regList), &iter, pathToRow);
+	if (valid) {
+		gtk_list_store_set(regList, &iter, 1, updatedValue, -1);
+	}
+	
 }
 
 
@@ -336,7 +351,8 @@ create_register_view_and_model (void) {
 
 /*===========================Open File============================*/
 
-void load_memory(FILE *fp, GtkListStore *list, ControlUnit *unit) {
+void load_memory(FILE *fp, struct UpdateData *data) {
+	ControlUnit *unit = data->unit;
 	int *origin = malloc(sizeof(int));
 	fread(origin, sizeof(int), 1, fp);
 	unit->programCounter = *origin;
@@ -348,17 +364,17 @@ void load_memory(FILE *fp, GtkListStore *list, ControlUnit *unit) {
 		int instruction = *buff;
 		int address = *origin + i;
 		unit->memory->write(unit->memory, address, instruction);
-		refresh_instruction_list(list, unit->memory);
+		refresh_lists(data);
 	}
 	free(origin);
 	free(buff);
 }
 
-int open_file(char *filename, GtkListStore *list, ControlUnit *unit) {
+int open_file(char *filename, struct UpdateData *data) {
 	FILE *fp;
 	fp = fopen(filename, "rb");
 	if (fp != NULL) {
-		load_memory(fp, list, unit);
+		load_memory(fp, data);
 	}
 	fclose(fp);
 	return fp != NULL;
@@ -376,7 +392,7 @@ void load_binary_file(GtkWidget *object, gpointer user_data) {
 		GtkFileChooser *chooser = GTK_FILE_CHOOSER(dialog);
 		filename = gtk_file_chooser_get_filename (chooser);
 		struct UpdateData *data = (struct UpdateData *) user_data;
-		open_file (filename, GTK_LIST_STORE(data->list), data->unit);
+		open_file (filename, data);
 		g_free (filename);
 	}
 	
@@ -424,7 +440,7 @@ gboolean advanceLine(GtkWidget *widget, GdkEventKey *event, gpointer user_data) 
 	if(keycode == gdk_keyval_from_name("F5")) {
 		printf("Running Next Instruction\n");
 		data->unit->nextInst(data->unit);
-		refresh_instruction_list(GTK_LIST_STORE(data->list), data->unit->memory);
+		refresh_lists(data);
 	}
 	return 1;
 }
@@ -503,8 +519,9 @@ int	main (int argc, char **argv){
 									
     g_signal_connect(G_OBJECT(exit_menu_item), "activate", G_CALLBACK(on_window_main_destroy), NULL);
 	
-	GtkTreeModel *model = gtk_tree_view_get_model(GTK_TREE_VIEW(instr_tree_view));
-	struct UpdateData data = {model, unit};
+	GtkTreeModel *instModel = gtk_tree_view_get_model(GTK_TREE_VIEW(instr_tree_view));
+	GtkTreeModel *regModel = gtk_tree_view_get_model(GTK_TREE_VIEW(reg_tree_view));
+	struct UpdateData data = {instModel, regModel, unit};
     g_signal_connect(G_OBJECT(load_program_menu_item), "activate",G_CALLBACK(load_binary_file), &data);
     g_signal_connect (window, "delete_event", G_CALLBACK(on_window_main_destroy), NULL); /* dirty */
     g_signal_connect (instr_tree_view, "row-activated",  G_CALLBACK(onTreeViewRowActivated), NULL);
