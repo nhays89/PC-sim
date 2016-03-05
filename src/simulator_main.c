@@ -29,8 +29,8 @@ enum
 } ;
 
 struct UpdateData {
-	GtkTreeModel *instList;
-	GtkTreeModel *regList;
+	GtkListStore *instList;
+	GtkListStore *regList;
 	ControlUnit *unit;
 };
 
@@ -303,8 +303,7 @@ for(i = 0; i < 16; i++) {
 }
 
 
-static GtkWidget *
-create_register_view_and_model (void) {
+static GtkWidget *create_register_view_and_model (void) {
   GtkCellRenderer     *renderer;
   GtkTreeModel        *model;
   GtkWidget           *view;
@@ -521,12 +520,13 @@ int	main (int argc, char **argv){
 	
 	GtkTreeModel *instModel = gtk_tree_view_get_model(GTK_TREE_VIEW(instr_tree_view));
 	GtkTreeModel *regModel = gtk_tree_view_get_model(GTK_TREE_VIEW(reg_tree_view));
-	struct UpdateData data = {instModel, regModel, unit};
-    g_signal_connect(G_OBJECT(load_program_menu_item), "activate",G_CALLBACK(load_binary_file), &data);
+	struct UpdateData data = {GTK_LIST_STORE(instModel), GTK_LIST_STORE(regModel), unit};
+    g_signal_connect(G_OBJECT(load_program_menu_item), "activate", G_CALLBACK(load_binary_file), &data);
+	
     g_signal_connect (window, "delete_event", G_CALLBACK(on_window_main_destroy), NULL); /* dirty */
     g_signal_connect (instr_tree_view, "row-activated",  G_CALLBACK(onTreeViewRowActivated), NULL);
     g_signal_connect (reg_tree_view, "row-activated",  G_CALLBACK(onTreeViewRowActivated), NULL);
-    g_signal_connect(G_OBJECT(instr_tree_view), "key-press-event", G_CALLBACK(advanceLine), &data);
+    g_signal_connect (window, "key-press-event", G_CALLBACK(advanceLine), &data);
   
     reg_select = gtk_tree_view_get_selection (GTK_TREE_VIEW (reg_tree_view));
     instruction_select = gtk_tree_view_get_selection (GTK_TREE_VIEW (instr_tree_view));
