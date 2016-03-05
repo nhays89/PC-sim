@@ -29,7 +29,7 @@ enum
 } ;
 
 struct UpdateData {
-	GtkTreeModel *list;
+	GtkListStore *list;
 	ControlUnit *unit;
 };
 
@@ -376,7 +376,7 @@ void load_binary_file(GtkWidget *object, gpointer user_data) {
 		GtkFileChooser *chooser = GTK_FILE_CHOOSER(dialog);
 		filename = gtk_file_chooser_get_filename (chooser);
 		struct UpdateData *data = (struct UpdateData *) user_data;
-		open_file (filename, data->list, data->unit);
+		open_file (filename, GTK_LIST_STORE(data->list), data->unit);
 		g_free (filename);
 	}
 	
@@ -424,7 +424,7 @@ gboolean advanceLine(GtkWidget *widget, GdkEventKey *event, gpointer user_data) 
 	if(keycode == gdk_keyval_from_name("F5")) {
 		printf("Running Next Instruction\n");
 		data->unit->nextInst(data->unit);
-		refresh_instruction_list(data->list, data->unit->memory);
+		refresh_instruction_list(GTK_LIST_STORE(data->list), data->unit->memory);
 	}
 	return 1;
 }
