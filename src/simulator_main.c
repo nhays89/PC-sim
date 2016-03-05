@@ -504,7 +504,7 @@ int	main (int argc, char **argv){
     g_signal_connect(G_OBJECT(exit_menu_item), "activate", G_CALLBACK(on_window_main_destroy), NULL);
 	
 	GtkTreeModel *model = gtk_tree_view_get_model(GTK_TREE_VIEW(instr_tree_view));
-	struct UpdateData data = {GTK_LIST_STORE(model), unit};
+	struct UpdateData data = {model, unit};
     g_signal_connect(G_OBJECT(load_program_menu_item), "activate",G_CALLBACK(load_binary_file), &data);
     g_signal_connect (window, "delete_event", G_CALLBACK(on_window_main_destroy), NULL); /* dirty */
     g_signal_connect (instr_tree_view, "row-activated",  G_CALLBACK(onTreeViewRowActivated), NULL);
