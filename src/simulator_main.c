@@ -376,7 +376,7 @@ void load_binary_file(GtkWidget *object, gpointer user_data) {
 		GtkFileChooser *chooser = GTK_FILE_CHOOSER(dialog);
 		filename = gtk_file_chooser_get_filename (chooser);
 		struct UpdateData *data = (struct UpdateData *) user_data;
-		open_file (filename, data->list, data->unit);
+		open_file (filename, GTK_LIST_STORE(data->list), data->unit);
 		g_free (filename);
 	}
 	
@@ -424,7 +424,7 @@ gboolean advanceLine(GtkWidget *widget, GdkEventKey *event, gpointer user_data) 
 	if(keycode == gdk_keyval_from_name("F5")) {
 		printf("Running Next Instruction\n");
 		data->unit->nextInst(data->unit);
-		refresh_instruction_list(data->list, data->unit->memory);
+		refresh_instruction_list(GTK_LIST_STORE(data->list), data->unit->memory);
 	}
 	return 1;
 }
@@ -504,7 +504,7 @@ int	main (int argc, char **argv){
     g_signal_connect(G_OBJECT(exit_menu_item), "activate", G_CALLBACK(on_window_main_destroy), NULL);
 	
 	GtkTreeModel *model = gtk_tree_view_get_model(GTK_TREE_VIEW(instr_tree_view));
-	struct UpdateData data = {GTK_LIST_STORE(model), unit};
+	struct UpdateData data = {model, unit};
     g_signal_connect(G_OBJECT(load_program_menu_item), "activate",G_CALLBACK(load_binary_file), &data);
     g_signal_connect (window, "delete_event", G_CALLBACK(on_window_main_destroy), NULL); /* dirty */
     g_signal_connect (instr_tree_view, "row-activated",  G_CALLBACK(onTreeViewRowActivated), NULL);
