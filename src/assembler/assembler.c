@@ -2,6 +2,8 @@
 #include <string.h>
 #include <stdlib.h>
 
+//typedef enum { false, true } bool;
+
 
 /* Function: getRegisterNum
  *-------------------
@@ -51,15 +53,23 @@ int getRegisterNum(char *reg)
     return result;
 }
 
+/* Function: setImmediate
+ *-------------------
+ *  Adds an immidate value to an I instruction
+ *
+ *  instr: a binary instruction
+ *  imm: string with hex immidate value
+ */
 void setImmediate(int *instr, char *imm)
 {
     char *ptr;
     long immInt;
 
     immInt = strtol(imm, &ptr, 10);
-    printf("imm value is: %d\n", (int) immInt);
+    //for debugging
+    //printf("imm value is: %d\n", (int) immInt);
 
-    if (something < 0xFFFFF)
+    if (immInt < 0xFFFFF)
         *instr = *instr | (int) immInt;
 }
 
@@ -170,19 +180,50 @@ char getInstructionType(int instr)
     return result;
 }
 
+int isDirective(char *inst)
+{
+    if (inst[0] == '.')
+        return 1;
+    else 
+        return 0;
+}
+
 int createMachineCode(char *inst)
 {
     int result = 0;
 
+    char copy[128]; 
     char *token;
+    char *dir;
     char *regX;
     char *regY;
     char *regZ;
+    char *imm;
     
-    token = strtok(inst, " ");
+    strcpy(copy, inst);
+	// token = strtok(copy, " $");
+    
+    //deal with directives
+    if (isDirective(copy) == 1)
+    {
+        dir = strtok(copy, " \0;");
+        //handle an .END directive as a halt
+        if (strcmp(dir, ".END") == 0)
+        {
+           return createMachineCode("halt"); 
+        } 
+        //write the int after .orig
+        else if (strcmp(dir, ".ORIG") == 0)
+        {
+            dir = strtok(NULL, " \0;");
+            return atoi(dir);
+        }
+    }
+
+    token = strtok(copy, " ") ;
     result = getOpcode(token);
-    
-    //pasrse and create the rest of the instruction based on its type
+
+    //parse and create the rest of the instruction based on its type
     switch(getInstructionType(result))
     {
         case 'R':
@@ -192,11 +233,35 @@ int createMachineCode(char *inst)
             regY = strtok(NULL, " ,");
             setRegister('y', &result, regY);
 
-            regZ = strtok(NULL, " \0");
+            regZ = strtok(NULL, " \0;");
             setRegister('z', &result, regZ);
             break;
         case 'I':
-            //TODO write function to translate imm val to binary
+            //sw and lw look at little different
+            //TODO fix how these two work
+            if (strcmp(token, "sw") == 0
+                || strcmp(token, "lw") == 0)
+            {
+                regX = strtok(NULL, ",");
+                setRegister('x', &result, regX);
+
+                imm = strtok(NULL, "(");
+                setImmediate(&result, imm);
+
+                regY = strtok(NULL, ")");
+                setRegister('y', &result, regY);
+
+                break;
+            }
+            regX = strtok(NULL, ",");
+            setRegister('x', &result, regX);
+
+            regY = strtok(NULL, " ,");
+            setRegister('y', &result, regY);
+
+            imm = strtok(NULL, " \0");
+
+            setImmediate(&result, imm);
             break;
         case 'J':
             regX = strtok(NULL, ",");
