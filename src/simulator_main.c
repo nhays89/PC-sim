@@ -92,6 +92,7 @@ void refresh_lists (struct UpdateData *data) {
 }
 
 
+/*=============================SUPPLEMENTARY CALLBACK FUNCTIONS=====================================*/
 
  void write_to_list_store (GtkListStore *liststore, gchar *startRow, gchar *binString) {
     GtkTreeIter  iter;
@@ -164,6 +165,26 @@ void onTreeViewRowActivated (GtkTreeView *view, GtkTreePath *path, GtkTreeViewCo
 	
 }
 
+//call back function to properly destroy the resources associated with the 
+//main widget. 
+void on_window_main_destroy(GtkWidget *object, gpointer user_data) {
+	g_print("in window destory");
+	//g_object_unref(G_OBJECT(builder));
+	gtk_main_quit();
+}
+
+
+		
+void reinitialize_machine(GtkWidget *widget, gpointer user_data) {
+	//clear memory in control unit
+	//clear registers in register file
+	//reset PC and IR
+	//call create_instruction_view_and_model to clear tree view
+	//call refresh_lists
+	
+	
+	
+}
 
 
 
@@ -420,15 +441,6 @@ void init_default_styling(GtkWindow *window) {
 	gtk_window_set_default_size (window, 350, 700);
 }
 
-//call back function to properly destroy the resources associated with the 
-//main widget. 
-void on_window_main_destroy(GtkWidget *object, gpointer user_data) {
-	g_print("in window destory");
-	//g_object_unref(G_OBJECT(builder));
-	gtk_main_quit();
-}
-
-
 
 
 
@@ -450,8 +462,6 @@ gboolean advanceLine(GtkWidget *widget, GdkEventKey *event, gpointer user_data) 
 	}
 	return 1;
 }
-		
-
 		
 		
 		
@@ -478,11 +488,13 @@ int	main (int argc, char **argv){
 	GtkWidget *box;
 	
 	GtkWidget *file_menu_item;
+	GtkWidget *reinitialize_machine_menu_item;
 	GtkWidget *exit_menu_item;
 	GtkWidget *load_program_menu_item;
 	GtkWidget *file_menu;
 	GtkWidget *menu_bar;
-	GtkWidget *seperator;
+	GtkWidget *line_seperator_1;
+	GtkWidget *line_seperator_2;
 	
 	gtk_init (&argc, &argv);
 	
@@ -498,18 +510,23 @@ int	main (int argc, char **argv){
                                     GTK_POLICY_AUTOMATIC, GTK_POLICY_ALWAYS);				
 	instr_tree_view = create_instruction_view_and_model (unit->memory);
 	reg_tree_view = create_register_view_and_model ();
+	
 	/* menu bar */
 	
-	seperator = gtk_separator_menu_item_new();
+	line_seperator_1 = gtk_separator_menu_item_new();
+	line_seperator_2 = gtk_separator_menu_item_new();
 	menu_bar = gtk_menu_bar_new();
 	file_menu_item = gtk_menu_item_new_with_label ("File");
 	gtk_menu_shell_append(GTK_MENU_SHELL(menu_bar), file_menu_item);
 	file_menu = gtk_menu_new ();
 	gtk_menu_item_set_submenu (GTK_MENU_ITEM (file_menu_item), file_menu);
 	load_program_menu_item = gtk_menu_item_new_with_label("Load");
+	reinitialize_machine_menu_item = gtk_menu_item_new_with_label("Reintialize Machine");
 	exit_menu_item = gtk_menu_item_new_with_label("Exit");
 	gtk_menu_shell_append(GTK_MENU_SHELL(file_menu), load_program_menu_item);
-	gtk_menu_shell_append(GTK_MENU_SHELL(file_menu), seperator);
+	gtk_menu_shell_append(GTK_MENU_SHELL(file_menu), line_seperator_1);
+	gtk_menu_shell_append(GTK_MENU_SHELL(file_menu), reinitialize_machine_menu_item);
+	gtk_menu_shell_append(GTK_MENU_SHELL(file_menu), line_seperator_2);
 	gtk_menu_shell_append(GTK_MENU_SHELL(file_menu), exit_menu_item);
 	
 	
@@ -529,10 +546,10 @@ int	main (int argc, char **argv){
 	GtkTreeModel *regModel = gtk_tree_view_get_model(GTK_TREE_VIEW(reg_tree_view));
 	struct UpdateData data = {GTK_TREE_VIEW(instr_tree_view), GTK_LIST_STORE(instModel), GTK_LIST_STORE(regModel), unit};
     g_signal_connect(G_OBJECT(load_program_menu_item), "activate", G_CALLBACK(load_binary_file), &data);
-	
+	g_signal_connect(G_OBJECT(reinitialize_machine_menu_item), "activate", G_CALLBACK(reinitialize_machine), &data);
     g_signal_connect (window, "delete_event", G_CALLBACK(on_window_main_destroy), NULL); /* dirty */
-    g_signal_connect (instr_tree_view, "row-activated",  G_CALLBACK(onTreeViewRowActivated), NULL);
-    g_signal_connect (reg_tree_view, "row-activated",  G_CALLBACK(onTreeViewRowActivated), NULL);
+    g_signal_connect (instr_tree_view, "row-activated",  G_CALLBACK(onTreeViewRowActivated), &data);
+    g_signal_connect (reg_tree_view, "row-activated",  G_CALLBACK(onTreeViewRowActivated), &data);
     g_signal_connect (window, "key-press-event", G_CALLBACK(advanceLine), &data);
   
     reg_select = gtk_tree_view_get_selection (GTK_TREE_VIEW (reg_tree_view));
