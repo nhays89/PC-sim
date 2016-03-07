@@ -1,9 +1,10 @@
 /**
  * @file assemblerGUI.h
- * @author nebp
- * @date 26 Feb 2016
- * @TODO real documentation
+ * @author nnebp
  *
+ * @brief GTK gui for the assembler allows a user to edit, save, open
+ * and assemble a text file visually. Consists of a text editing
+ * component as well as a menu for file functions.
  */
 
 #ifndef ASSEMBLER_GUI_H_
@@ -16,6 +17,12 @@
 
 #include "assembler.h"
 
+/**
+ * @brief Clears all text from a GtkTextBuffer.
+ *
+ * @param widget pointer to calling widget.
+ * @param user_data pointer to a GtkTextBuffer.
+ */
 void clearBuffer(GtkWidget* widget, gpointer *user_data)
 {
     GtkTextIter start, end;
@@ -28,6 +35,12 @@ void clearBuffer(GtkWidget* widget, gpointer *user_data)
     gtk_text_buffer_delete(textbuffer, &start, &end);
 }
 
+/**
+ * @brief Places text from a text file into a GtkTextFuffer
+ *
+ * @param GtkTextBuffer pointer to textbuffer.
+ * @param filename string representing text file name.
+ */
 void writeFileToBuffer(GtkTextBuffer *textbuffer, char *filename)
 {
     FILE *file = fopen(filename, "r");
@@ -45,6 +58,14 @@ void writeFileToBuffer(GtkTextBuffer *textbuffer, char *filename)
     fclose(file);
 }
 
+/**
+ * @brief Checks if a line is a valid piece of assembly code.
+ * I.e. not a comment or blank line. Lines are checked by looking
+ * at their first characters;
+ *
+ * @param line string representing a line.
+ * @return 0 if invalid 1 if valid.
+ */
 int isValidLine(char *line)
 {
     int result = 1;
@@ -60,6 +81,12 @@ int isValidLine(char *line)
     return result;
 }
 
+/**
+ * @brief Saves the text in the text buffer into a textfile.
+ *
+ * @param widget pointer to calling widget.
+ * @param user_data pointer to GtkTextView.
+ */
 void saveActivate(GtkWidget* widget, gpointer *user_data) 
 {
     GtkWidget *dialog;
@@ -117,6 +144,13 @@ void saveActivate(GtkWidget* widget, gpointer *user_data)
     gtk_widget_destroy (dialog);
 }
 
+/**
+ * @brief Opens a text file and writes the output to a text buffer.
+ *
+ * @param widget pointer to calling widget.
+ * @param user_data pointer to GtkTextView.
+ * @see writeFileToBuffer
+ */
 void openActivate(GtkWidget* widget, gpointer *user_data) 
 {
     GtkWidget *dialog;
@@ -154,6 +188,13 @@ void openActivate(GtkWidget* widget, gpointer *user_data)
 
 }
 
+/**
+ * @brief Reads the assembley code in a textbuffer then writes
+ * the machinecode translation to a binary file.
+ *
+ * @param textBuffer pointer to GtkTextBuffer object.
+ * @param filename string represeting the name of the output file.
+ */
 void assembleBuffer(GtkTextBuffer *textbuffer, char *filename)
 {
     GtkTextIter start, end;
@@ -186,7 +227,8 @@ void assembleBuffer(GtkTextBuffer *textbuffer, char *filename)
 
         if (isValidLine(tempBuffer))
         {
-            printf("%d !!! %d\n", createMachineCode(tempBuffer), i);//TODO remove
+            //for debugging
+            //printf("%d !!! %d\n", createMachineCode(tempBuffer), i);//TODO remove
             binline = createMachineCode(tempBuffer);
             fwrite(&binline, sizeof(int), 1, file);
         }
@@ -194,6 +236,15 @@ void assembleBuffer(GtkTextBuffer *textbuffer, char *filename)
 
     fclose(file);
 }
+
+/**
+ * @brief Displays a file dialog for the user to select the output file
+ * for assembley of the entered code.
+ *
+ * @param widget pointer to calling widget. 
+ * @param user_data pointer to GtkTextView object. 
+ * @see assembleBuffer
+ */
 void assembleActivate(GtkWidget* widget, gpointer *user_data) 
 {
 
@@ -234,6 +285,9 @@ void assembleActivate(GtkWidget* widget, gpointer *user_data)
     gtk_widget_destroy (dialog);
 }
 
+/**
+ * @brief Creates and displays the GTK gui.
+ */
 void startGTK()
 {
 

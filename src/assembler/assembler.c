@@ -2,15 +2,7 @@
 #include <string.h>
 #include <stdlib.h>
 
-//typedef enum { false, true } bool;
 
-
-/* Function: getRegisterNum
- *-------------------
- *  returns an int containg the dec number (0-15) or a register
- *
- *  *reg: the ascii name of a register
- */
 int getRegisterNum(char *reg)
 {
     int result = 0;
@@ -53,13 +45,6 @@ int getRegisterNum(char *reg)
     return result;
 }
 
-/* Function: setImmediate
- *-------------------
- *  Adds an immidate value to an I instruction
- *
- *  instr: a binary instruction
- *  imm: string with hex immidate value
- */
 void setImmediate(int *instr, char *imm)
 {
     char *ptr;
@@ -73,14 +58,6 @@ void setImmediate(int *instr, char *imm)
         *instr = *instr | (int) immInt;
 }
 
-/* Function: setRegister
- *-------------------
- *  fills in the binary operand of a register number in an instruction
- *
- *  *instr: pointer to the binary instruction we are creating
- *  regToSet: the register operand to set (x,y or z) (ex: add X,Y,Z or addi X,Y, 42) 
- *  *regName: the ascii name of the register to be used as an operand (ex: $a0)
- */
 void setRegister(char regToSet, int *instr, char *regName)
 {
     int shift = 0;
@@ -111,12 +88,6 @@ void setRegister(char regToSet, int *instr, char *regName)
     *instr = *instr |  regNum;
 }
 
-/* Function: getOpcode
- *-------------------
- *  returns an int containg the opcode for an instruction (opcode in the most sig 4 bits)
- *
- *  *instr: the text of an instruction (line from .asm file)
- */
 int getOpcode(char *instr)
 {
     int result = 0;
@@ -147,13 +118,6 @@ int getOpcode(char *instr)
     return result;
 }
 
-/* Function: getInstructionType
- *-------------------
- *  returns a char representing an instruction type (R, I, J or O)
- *  useful for creating instruction binary
- *
- *  instr: a binary instruction 
- */
 char getInstructionType(int instr)
 {
     char result;
