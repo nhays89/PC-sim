@@ -3,9 +3,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <math.h>
-//#include <gdk/gdkkeysyms.h>
-#include "controlunit.h"
-#include "memory.h"
+#include "../model/controlunit.h"
 
 
 		
