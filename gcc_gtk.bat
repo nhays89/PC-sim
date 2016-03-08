@@ -7,6 +7,6 @@ del tmp.txt
  
 rem echo %pkg-info%
 cd src
-gcc simulator_main.c alu.c controlunit.c memory.c regfile.c -o main.exe -Wall %pkg-info%
+gcc simulator/simulator_main.c model/alu.c model/controlunit.c model/memory.c model/regfile.c -o main.exe -Wall %pkg-info%
 main.exe
 cd ..

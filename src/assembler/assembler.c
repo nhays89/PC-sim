@@ -3,12 +3,6 @@
 #include <stdlib.h>
 
 
-/* Function: getRegisterNum
- *-------------------
- *  returns an int containg the dec number (0-15) or a register
- *
- *  *reg: the ascii name of a register
- */
 int getRegisterNum(char *reg)
 {
     int result = 0;
@@ -57,20 +51,13 @@ void setImmediate(int *instr, char *imm)
     long immInt;
 
     immInt = strtol(imm, &ptr, 10);
-    printf("imm value is: %d\n", (int) immInt);
+    //for debugging
+    //printf("imm value is: %d\n", (int) immInt);
 
-    if (something < 0xFFFFF)
+    if (immInt < 0xFFFFF)
         *instr = *instr | (int) immInt;
 }
 
-/* Function: setRegister
- *-------------------
- *  fills in the binary operand of a register number in an instruction
- *
- *  *instr: pointer to the binary instruction we are creating
- *  regToSet: the register operand to set (x,y or z) (ex: add X,Y,Z or addi X,Y, 42) 
- *  *regName: the ascii name of the register to be used as an operand (ex: $a0)
- */
 void setRegister(char regToSet, int *instr, char *regName)
 {
     int shift = 0;
@@ -101,12 +88,6 @@ void setRegister(char regToSet, int *instr, char *regName)
     *instr = *instr |  regNum;
 }
 
-/* Function: getOpcode
- *-------------------
- *  returns an int containg the opcode for an instruction (opcode in the most sig 4 bits)
- *
- *  *instr: the text of an instruction (line from .asm file)
- */
 int getOpcode(char *instr)
 {
     int result = 0;
@@ -137,13 +118,6 @@ int getOpcode(char *instr)
     return result;
 }
 
-/* Function: getInstructionType
- *-------------------
- *  returns a char representing an instruction type (R, I, J or O)
- *  useful for creating instruction binary
- *
- *  instr: a binary instruction 
- */
 char getInstructionType(int instr)
 {
     char result;
@@ -170,19 +144,50 @@ char getInstructionType(int instr)
     return result;
 }
 
+int isDirective(char *inst)
+{
+    if (inst[0] == '.')
+        return 1;
+    else 
+        return 0;
+}
+
 int createMachineCode(char *inst)
 {
     int result = 0;
 
+    char copy[128]; 
     char *token;
+    char *dir;
     char *regX;
     char *regY;
     char *regZ;
+    char *imm;
     
-    token = strtok(inst, " ");
+    strcpy(copy, inst);
+	// token = strtok(copy, " $");
+    
+    //deal with directives
+    if (isDirective(copy) == 1)
+    {
+        dir = strtok(copy, " \0;");
+        //handle an .END directive as a halt
+        if (strcmp(dir, ".END") == 0)
+        {
+           return createMachineCode("halt"); 
+        } 
+        //write the int after .orig
+        else if (strcmp(dir, ".ORIG") == 0)
+        {
+            dir = strtok(NULL, " \0;");
+            return atoi(dir);
+        }
+    }
+
+    token = strtok(copy, " ") ;
     result = getOpcode(token);
-    
-    //pasrse and create the rest of the instruction based on its type
+
+    //parse and create the rest of the instruction based on its type
     switch(getInstructionType(result))
     {
         case 'R':
@@ -192,11 +197,35 @@ int createMachineCode(char *inst)
             regY = strtok(NULL, " ,");
             setRegister('y', &result, regY);
 
-            regZ = strtok(NULL, " \0");
+            regZ = strtok(NULL, " \0;");
             setRegister('z', &result, regZ);
             break;
         case 'I':
-            //TODO write function to translate imm val to binary
+            //sw and lw look at little different
+            //TODO fix how these two work
+            if (strcmp(token, "sw") == 0
+                || strcmp(token, "lw") == 0)
+            {
+                regX = strtok(NULL, ",");
+                setRegister('x', &result, regX);
+
+                imm = strtok(NULL, "(");
+                setImmediate(&result, imm);
+
+                regY = strtok(NULL, ")");
+                setRegister('y', &result, regY);
+
+                break;
+            }
+            regX = strtok(NULL, ",");
+            setRegister('x', &result, regX);
+
+            regY = strtok(NULL, " ,");
+            setRegister('y', &result, regY);
+
+            imm = strtok(NULL, " \0");
+
+            setImmediate(&result, imm);
             break;
         case 'J':
             regX = strtok(NULL, ",");
