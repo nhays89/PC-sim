@@ -35,6 +35,21 @@ struct UpdateData {
 	ControlUnit *unit;
 };
 
+char *intToString(int val) {
+	char *str = calloc(11, sizeof(char)); //Max chars needed for int string + null
+	sprintf(str, "%d", val);
+	return str;
+}
+
+char *getHexVal(int val) {
+	char *res = calloc(9, sizeof(char)); //2 hex vals / byte + null
+	if (val <= 0xFFFF)
+	{
+		sprintf(&res[0], "%04x", val);
+	}
+	return res;
+}
+
 
 char *get32BitIntString (int value) {
 	char *bits = calloc(32 + 1, 1);
@@ -69,7 +84,7 @@ void refresh_lists (struct UpdateData *data) {
 	pathToRow = gtk_tree_path_new_from_string(path);
     valid = gtk_tree_model_get_iter(GTK_TREE_MODEL(instructionList), &iter, pathToRow);
 	if (valid) {
-		gtk_list_store_set(instructionList, &iter, 1, get32BitIntString(updatedValue), -1);
+		gtk_list_store_set(instructionList, &iter, COL_VALUE, get32BitIntString(updatedValue), -1);
 	}
 	
 	//set highlighted path
@@ -87,7 +102,22 @@ void refresh_lists (struct UpdateData *data) {
 	pathToRow = gtk_tree_path_new_from_string(path);
     valid = gtk_tree_model_get_iter(GTK_TREE_MODEL(regList), &iter, pathToRow);
 	if (valid) {
-		gtk_list_store_set(regList, &iter, 1, updatedValue, -1);
+		gtk_list_store_set(regList, &iter, REG_VAL, intToString(updatedValue), -1);
+	}
+	
+	//Update IR & PC
+	updatedValue = unit->instructionRegister;
+	pathToRow = gtk_tree_path_new_from_string("0");
+	valid = gtk_tree_model_get_iter(GTK_TREE_MODEL(regList), &iter, pathToRow);
+	if (valid) {
+		gtk_list_store_set(regList, &iter, REG_VAL, get32BitIntString(updatedValue), -1);
+	}
+	
+	updatedValue = unit->programCounter;
+	pathToRow = gtk_tree_path_new_from_string("1");
+	valid = gtk_tree_model_get_iter(GTK_TREE_MODEL(regList), &iter, pathToRow);
+	if (valid) {
+		gtk_list_store_set(regList, &iter, REG_VAL, getHexVal(updatedValue), -1);
 	}
 }
 
@@ -181,14 +211,14 @@ static GtkTreeModel *create_and_fill_instruction_model (Memory *mem)
   GtkListStore  *store;
   GtkTreeIter   iter;
   
-  store = gtk_list_store_new (NUM_INSTRUCTION_COLS, G_TYPE_UINT, G_TYPE_STRING);
+  store = gtk_list_store_new (NUM_INSTRUCTION_COLS, G_TYPE_STRING, G_TYPE_STRING);
   int i;
   for(i = 0; i < mem->size; i++) {
     /* Append a row and fill in some data */
 	char *value = get32BitIntString(mem->read(mem, i));
     gtk_list_store_append (store, &iter);
     gtk_list_store_set (store, &iter,
-                        COL_ADDRESS, (guint32) i,
+                        COL_ADDRESS, getHexVal(i),
                         COL_VALUE, value,
                         -1);
   }
@@ -272,40 +302,33 @@ static void reg_tree_selection_changed_cb (GtkTreeSelection *selection, gpointer
 }
 
 //register model
-static GtkTreeModel *
-create_and_fill_register_model (void)
-{
-  GtkListStore  *store;
-  GtkTreeIter    iter;
+static GtkTreeModel *create_and_fill_register_model (void) {
+	GtkListStore  *store;
+	GtkTreeIter    iter;
   
-  store = gtk_list_store_new (NUM_REGISTER_COLS, G_TYPE_STRING, G_TYPE_UINT);
-  int i;
+	store = gtk_list_store_new (NUM_REGISTER_COLS, G_TYPE_STRING, G_TYPE_STRING);
+	int i;
 	gtk_list_store_append (store, &iter);
 	gtk_list_store_set(store, &iter,
 						REG_NUM, "IR",
-						REG_VAL, (guint32) 0,
+						REG_VAL, get32BitIntString(0),
 						-1);
 	gtk_list_store_append (store, &iter);
 	gtk_list_store_set(store, &iter,
 						REG_NUM, "PC",
-						REG_VAL, (guint32) 0,
+						REG_VAL, getHexVal(0),
 						-1);
 	
-for(i = 0; i < 16; i++) {
-  /* Append a row and fill in some data */
-  gchar *my_reg_num = g_strdup_printf("R%i", i);
-  gtk_list_store_append (store, &iter);
+	for(i = 0; i < 16; i++) {
+		/* Append a row and fill in some data */
+		gchar *my_reg_num = g_strdup_printf("R%i", i);
+		gtk_list_store_append (store, &iter);
 
-//optional to hold reg value with numbers
- /*  gtk_list_store_set (store, &iter,
-                      REG_NUM, (guint32) i,
-                      REG_VAL, "0",
-                      -1); */
-	gtk_list_store_set (store, &iter,
-                      REG_NUM, my_reg_num,
-                      REG_VAL, (guint32) 0, //global variable to store reg value?
-                      -1);
-}
+		gtk_list_store_set (store, &iter,
+						REG_NUM, my_reg_num,
+						REG_VAL, intToString(0), //global variable to store reg value?
+						-1);
+	}
   return GTK_TREE_MODEL (store);
 }
 
@@ -451,7 +474,7 @@ gboolean advanceLine(GtkWidget *widget, GdkEventKey *event, gpointer user_data) 
 	return 1;
 }
 		
-
+////////////////////ADD RUN FUNCTION//////////////////////////////////
 		
 		
 		
