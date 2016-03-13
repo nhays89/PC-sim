@@ -1,0 +1,51 @@
+\hypertarget{menubar_8h}{}\section{C\+:/\+Users/nicho/repos/c/\+P\+C-\/sim/src/simulator/menubar.h File Reference}
+\label{menubar_8h}\index{C\+:/\+Users/nicho/repos/c/\+P\+C-\/sim/src/simulator/menubar.\+h@{C\+:/\+Users/nicho/repos/c/\+P\+C-\/sim/src/simulator/menubar.\+h}}
+
+
+Prototype for menu bar construction.  
+
+
+{\ttfamily \#include \char`\"{}../model/controlunit.\+h\char`\"{}}\\*
+\subsection*{Functions}
+\begin{DoxyCompactItemize}
+\item 
+Gtk\+Widget $\ast$ \hyperlink{menubar_8h_a8e592ade071e4ea9581b95e31a9d756a}{menu\+Bar\+Const} (Gtk\+Widget $\ast$instruction\+Tree\+View, Gtk\+Widget $\ast$register\+Tree\+View, Control\+Unit $\ast$unit)
+\begin{DoxyCompactList}\small\item\em Menubar constructor. Responsible for calling functions to load assembly file. \end{DoxyCompactList}\end{DoxyCompactItemize}
+
+
+\subsection{Detailed Description}
+Prototype for menu bar construction. 
+
+\begin{DoxyAuthor}{Author}
+Nicholas Hays \& Henry Lawrence 
+\end{DoxyAuthor}
+
+
+\subsection{Function Documentation}
+\index{menubar.\+h@{menubar.\+h}!menu\+Bar\+Const@{menu\+Bar\+Const}}
+\index{menu\+Bar\+Const@{menu\+Bar\+Const}!menubar.\+h@{menubar.\+h}}
+\subsubsection[{\texorpdfstring{menu\+Bar\+Const(\+Gtk\+Widget $\ast$instruction\+Tree\+View, Gtk\+Widget $\ast$register\+Tree\+View, Control\+Unit $\ast$unit)}{menuBarConst(GtkWidget *instructionTreeView, GtkWidget *registerTreeView, ControlUnit *unit)}}]{\setlength{\rightskip}{0pt plus 5cm}Gtk\+Widget$\ast$ menu\+Bar\+Const (
+\begin{DoxyParamCaption}
+\item[{Gtk\+Widget $\ast$}]{instr\+\_\+tree\+\_\+view, }
+\item[{Gtk\+Widget $\ast$}]{reg\+\_\+tree\+\_\+view, }
+\item[{Control\+Unit $\ast$}]{unit}
+\end{DoxyParamCaption}
+)}\hypertarget{menubar_8h_a8e592ade071e4ea9581b95e31a9d756a}{}\label{menubar_8h_a8e592ade071e4ea9581b95e31a9d756a}
+
+
+Menubar constructor. Responsible for calling functions to load assembly file. 
+
+Constructs the Gtk\+Widget Menu Bar.
+
+
+\begin{DoxyParams}{Parameters}
+{\em instr\+\_\+tree\+\_\+view} & instruction Tree\+View widget. \\
+\hline
+{\em reg\+\_\+tree\+\_\+view} & register Tree\+View widget. \\
+\hline
+{\em unit} & Control\+Unit which contains the data for the widgets. \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+a menu bar Gtk\+Widget. 
+\end{DoxyReturn}

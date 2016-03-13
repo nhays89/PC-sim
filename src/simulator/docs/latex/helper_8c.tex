@@ -1,0 +1,107 @@
+\hypertarget{helper_8c}{}\section{C\+:/\+Users/nicho/repos/c/\+P\+C-\/sim/src/simulator/helper.c File Reference}
+\label{helper_8c}\index{C\+:/\+Users/nicho/repos/c/\+P\+C-\/sim/src/simulator/helper.\+c@{C\+:/\+Users/nicho/repos/c/\+P\+C-\/sim/src/simulator/helper.\+c}}
+
+
+Helper functions to render data on Tree\+View widgets.  
+
+
+{\ttfamily \#include $<$gtk/gtk.\+h$>$}\\*
+{\ttfamily \#include $<$stdlib.\+h$>$}\\*
+{\ttfamily \#include $<$math.\+h$>$}\\*
+{\ttfamily \#include \char`\"{}../model/controlunit.\+h\char`\"{}}\\*
+{\ttfamily \#include \char`\"{}helper.\+h\char`\"{}}\\*
+\subsection*{Functions}
+\begin{DoxyCompactItemize}
+\item 
+char $\ast$ \hyperlink{helper_8c_a3b3639ede5ef44788a9e70a73827294e}{int\+To\+String} (int value)
+\begin{DoxyCompactList}\small\item\em Converts an integer to a string. \end{DoxyCompactList}\item 
+char $\ast$ \hyperlink{helper_8c_a74741f4925170e6a2ded0ba9aa648d7d}{get\+Hex\+Val} (int value)
+\begin{DoxyCompactList}\small\item\em Converts a decimal integer to a hex string. \end{DoxyCompactList}\item 
+char $\ast$ \hyperlink{helper_8c_a9b20f5ebae580a6414773a3f83b19453}{get32\+Bit\+Int\+String} (int value)
+\begin{DoxyCompactList}\small\item\em Gets a string representation of a 32-\/bit integer. \end{DoxyCompactList}\item 
+void \hyperlink{helper_8c_a3757ab9a5e3b5e00b905f5416067d115}{refresh\+\_\+lists} (\hyperlink{struct_update_data}{Update\+Data} $\ast$data)
+\begin{DoxyCompactList}\small\item\em Updates the instruction tree view and register tree view with data from the C\+PU memory and register file. \end{DoxyCompactList}\end{DoxyCompactItemize}
+
+
+\subsection{Detailed Description}
+Helper functions to render data on Tree\+View widgets. 
+
+\begin{DoxyAuthor}{Author}
+Nicholas Hays \& Henry Lawrence 
+\end{DoxyAuthor}
+
+
+\subsection{Function Documentation}
+\index{helper.\+c@{helper.\+c}!get32\+Bit\+Int\+String@{get32\+Bit\+Int\+String}}
+\index{get32\+Bit\+Int\+String@{get32\+Bit\+Int\+String}!helper.\+c@{helper.\+c}}
+\subsubsection[{\texorpdfstring{get32\+Bit\+Int\+String(int value)}{get32BitIntString(int value)}}]{\setlength{\rightskip}{0pt plus 5cm}char$\ast$ get32\+Bit\+Int\+String (
+\begin{DoxyParamCaption}
+\item[{int}]{value}
+\end{DoxyParamCaption}
+)}\hypertarget{helper_8c_a9b20f5ebae580a6414773a3f83b19453}{}\label{helper_8c_a9b20f5ebae580a6414773a3f83b19453}
+
+
+Gets a string representation of a 32-\/bit integer. 
+
+
+\begin{DoxyParams}{Parameters}
+{\em value} & an integer to convert to a binary string. \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+pointer to a 32 bit binary string. 
+\end{DoxyReturn}
+\index{helper.\+c@{helper.\+c}!get\+Hex\+Val@{get\+Hex\+Val}}
+\index{get\+Hex\+Val@{get\+Hex\+Val}!helper.\+c@{helper.\+c}}
+\subsubsection[{\texorpdfstring{get\+Hex\+Val(int value)}{getHexVal(int value)}}]{\setlength{\rightskip}{0pt plus 5cm}char$\ast$ get\+Hex\+Val (
+\begin{DoxyParamCaption}
+\item[{int}]{value}
+\end{DoxyParamCaption}
+)}\hypertarget{helper_8c_a74741f4925170e6a2ded0ba9aa648d7d}{}\label{helper_8c_a74741f4925170e6a2ded0ba9aa648d7d}
+
+
+Converts a decimal integer to a hex string. 
+
+
+\begin{DoxyParams}{Parameters}
+{\em value} & an integer to convert to hex \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+pointer to a string hex address. 
+\end{DoxyReturn}
+\index{helper.\+c@{helper.\+c}!int\+To\+String@{int\+To\+String}}
+\index{int\+To\+String@{int\+To\+String}!helper.\+c@{helper.\+c}}
+\subsubsection[{\texorpdfstring{int\+To\+String(int value)}{intToString(int value)}}]{\setlength{\rightskip}{0pt plus 5cm}char$\ast$ int\+To\+String (
+\begin{DoxyParamCaption}
+\item[{int}]{value}
+\end{DoxyParamCaption}
+)}\hypertarget{helper_8c_a3b3639ede5ef44788a9e70a73827294e}{}\label{helper_8c_a3b3639ede5ef44788a9e70a73827294e}
+
+
+Converts an integer to a string. 
+
+
+\begin{DoxyParams}{Parameters}
+{\em value} & an integer to convert to string \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+pointer to a 32 bit binary string. 
+\end{DoxyReturn}
+\index{helper.\+c@{helper.\+c}!refresh\+\_\+lists@{refresh\+\_\+lists}}
+\index{refresh\+\_\+lists@{refresh\+\_\+lists}!helper.\+c@{helper.\+c}}
+\subsubsection[{\texorpdfstring{refresh\+\_\+lists(\+Update\+Data $\ast$data)}{refresh_lists(UpdateData *data)}}]{\setlength{\rightskip}{0pt plus 5cm}void refresh\+\_\+lists (
+\begin{DoxyParamCaption}
+\item[{{\bf Update\+Data} $\ast$}]{data}
+\end{DoxyParamCaption}
+)}\hypertarget{helper_8c_a3757ab9a5e3b5e00b905f5416067d115}{}\label{helper_8c_a3757ab9a5e3b5e00b905f5416067d115}
+
+
+Updates the instruction tree view and register tree view with data from the C\+PU memory and register file. 
+
+
+\begin{DoxyParams}{Parameters}
+{\em data} & a reference to the data structure \\
+\hline
+\end{DoxyParams}

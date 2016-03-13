@@ -1,4 +1,9 @@
-// author: Nicholas hays
+/**
+ * @file simulator.c
+ * @author Nicholas Hays & Henry Lawrence
+ *
+ * @brief implements the simulator GUI. 
+ */
 #include <gtk/gtk.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -11,8 +16,9 @@
 
 
 
-/** call back function to properly destroy the resources associated with the 
-    widget. */
+/** @brief Call back function to properly destroy the resources associated with the GtkWindow.
+	@param object pointer to a GtkWindow
+	@param user_data data passed to the callback*/
    
 void on_window_main_destroy(GtkWidget *object, gpointer user_data) {
 	
@@ -21,15 +27,20 @@ void on_window_main_destroy(GtkWidget *object, gpointer user_data) {
 }
 
 
-// initializes some basic styling to the gtk window. 
+/** @brief Initializes some basic styling and size to the GtkWindow widget.
+	@param window pointer to a GtkWindow to style*/
+
 void init_default_styling(GtkWindow *window) {
 	gtk_window_set_title(window, "Vader");
 	gtk_window_set_default_size (window, 350, 700);
 }
 
+/** @brief Call back function to advance the program to the next instruction. Occurs when "F5" key is pressed.
+	@param widget GtkTreeView to reference
+	@param event the key event signal that was invoked.
+	@param user_data data passed to this callback.
+	@return TRUE to stop other handlers from being invoked for the event. FALSE to propagate the event further.*/ 
 
-// if the "F5" key is pressed, then this call back function will advance the program to the 
-// next instruction.  
 gboolean advanceLine(GtkWidget *widget, GdkEventKey *event, gpointer user_data) {
 	
 	guint keycode = event->keyval;
@@ -47,7 +58,10 @@ gboolean advanceLine(GtkWidget *widget, GdkEventKey *event, gpointer user_data) 
 	return 1;
 }
 		
-		
+/** Initialize everything needed to operate the Simulator. 
+	@param number of command line args
+	@param array of args*/	
+
 void startSimulator(int argc, char **argv){
 	
 	ControlUnit *unit = controlUnitConst(0, 0x5000);

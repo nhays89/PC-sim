@@ -1,0 +1,113 @@
+\hypertarget{simulator_8c}{}\section{C\+:/\+Users/nicho/repos/c/\+P\+C-\/sim/src/simulator/simulator.c File Reference}
+\label{simulator_8c}\index{C\+:/\+Users/nicho/repos/c/\+P\+C-\/sim/src/simulator/simulator.\+c@{C\+:/\+Users/nicho/repos/c/\+P\+C-\/sim/src/simulator/simulator.\+c}}
+
+
+implements the simulator G\+UI.  
+
+
+{\ttfamily \#include $<$gtk/gtk.\+h$>$}\\*
+{\ttfamily \#include $<$stdio.\+h$>$}\\*
+{\ttfamily \#include $<$stdlib.\+h$>$}\\*
+{\ttfamily \#include $<$math.\+h$>$}\\*
+{\ttfamily \#include \char`\"{}../model/controlunit.\+h\char`\"{}}\\*
+{\ttfamily \#include \char`\"{}menubar.\+h\char`\"{}}\\*
+{\ttfamily \#include \char`\"{}registerlist.\+h\char`\"{}}\\*
+{\ttfamily \#include \char`\"{}instructionlist.\+h\char`\"{}}\\*
+{\ttfamily \#include \char`\"{}helper.\+h\char`\"{}}\\*
+\subsection*{Functions}
+\begin{DoxyCompactItemize}
+\item 
+void \hyperlink{simulator_8c_ac7c3c859f97c9318f833e7a5e0905a29}{on\+\_\+window\+\_\+main\+\_\+destroy} (Gtk\+Widget $\ast$object, gpointer user\+\_\+data)
+\begin{DoxyCompactList}\small\item\em Call back function to properly destroy the resources associated with the Gtk\+Window. \end{DoxyCompactList}\item 
+void \hyperlink{simulator_8c_abbf1a67fb55018f9c8dba855351ead94}{init\+\_\+default\+\_\+styling} (Gtk\+Window $\ast$window)
+\begin{DoxyCompactList}\small\item\em Initializes some basic styling and size to the Gtk\+Window widget. \end{DoxyCompactList}\item 
+gboolean \hyperlink{simulator_8c_a287bb663353404fe10bbdff8ca5f7b85}{advance\+Line} (Gtk\+Widget $\ast$widget, Gdk\+Event\+Key $\ast$event, gpointer user\+\_\+data)
+\begin{DoxyCompactList}\small\item\em Call back function to advance the program to the next instruction. Occurs when \char`\"{}\+F5\char`\"{} key is pressed. \end{DoxyCompactList}\item 
+void \hyperlink{simulator_8c_a86d8f8a2d876c8b95dc183714f8c47f7}{start\+Simulator} (int argc, char $\ast$$\ast$argv)
+\end{DoxyCompactItemize}
+
+
+\subsection{Detailed Description}
+implements the simulator G\+UI. 
+
+\begin{DoxyAuthor}{Author}
+Nicholas Hays \& Henry Lawrence 
+\end{DoxyAuthor}
+
+
+\subsection{Function Documentation}
+\index{simulator.\+c@{simulator.\+c}!advance\+Line@{advance\+Line}}
+\index{advance\+Line@{advance\+Line}!simulator.\+c@{simulator.\+c}}
+\subsubsection[{\texorpdfstring{advance\+Line(\+Gtk\+Widget $\ast$widget, Gdk\+Event\+Key $\ast$event, gpointer user\+\_\+data)}{advanceLine(GtkWidget *widget, GdkEventKey *event, gpointer user_data)}}]{\setlength{\rightskip}{0pt plus 5cm}gboolean advance\+Line (
+\begin{DoxyParamCaption}
+\item[{Gtk\+Widget $\ast$}]{widget, }
+\item[{Gdk\+Event\+Key $\ast$}]{event, }
+\item[{gpointer}]{user\+\_\+data}
+\end{DoxyParamCaption}
+)}\hypertarget{simulator_8c_a287bb663353404fe10bbdff8ca5f7b85}{}\label{simulator_8c_a287bb663353404fe10bbdff8ca5f7b85}
+
+
+Call back function to advance the program to the next instruction. Occurs when \char`\"{}\+F5\char`\"{} key is pressed. 
+
+
+\begin{DoxyParams}{Parameters}
+{\em widget} & Gtk\+Tree\+View to reference \\
+\hline
+{\em event} & the key event signal that was invoked. \\
+\hline
+{\em user\+\_\+data} & data passed to this callback. \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+T\+R\+UE to stop other handlers from being invoked for the event. F\+A\+L\+SE to propagate the event further. 
+\end{DoxyReturn}
+\index{simulator.\+c@{simulator.\+c}!init\+\_\+default\+\_\+styling@{init\+\_\+default\+\_\+styling}}
+\index{init\+\_\+default\+\_\+styling@{init\+\_\+default\+\_\+styling}!simulator.\+c@{simulator.\+c}}
+\subsubsection[{\texorpdfstring{init\+\_\+default\+\_\+styling(\+Gtk\+Window $\ast$window)}{init_default_styling(GtkWindow *window)}}]{\setlength{\rightskip}{0pt plus 5cm}void init\+\_\+default\+\_\+styling (
+\begin{DoxyParamCaption}
+\item[{Gtk\+Window $\ast$}]{window}
+\end{DoxyParamCaption}
+)}\hypertarget{simulator_8c_abbf1a67fb55018f9c8dba855351ead94}{}\label{simulator_8c_abbf1a67fb55018f9c8dba855351ead94}
+
+
+Initializes some basic styling and size to the Gtk\+Window widget. 
+
+
+\begin{DoxyParams}{Parameters}
+{\em window} & pointer to a Gtk\+Window to style \\
+\hline
+\end{DoxyParams}
+\index{simulator.\+c@{simulator.\+c}!on\+\_\+window\+\_\+main\+\_\+destroy@{on\+\_\+window\+\_\+main\+\_\+destroy}}
+\index{on\+\_\+window\+\_\+main\+\_\+destroy@{on\+\_\+window\+\_\+main\+\_\+destroy}!simulator.\+c@{simulator.\+c}}
+\subsubsection[{\texorpdfstring{on\+\_\+window\+\_\+main\+\_\+destroy(\+Gtk\+Widget $\ast$object, gpointer user\+\_\+data)}{on_window_main_destroy(GtkWidget *object, gpointer user_data)}}]{\setlength{\rightskip}{0pt plus 5cm}void on\+\_\+window\+\_\+main\+\_\+destroy (
+\begin{DoxyParamCaption}
+\item[{Gtk\+Widget $\ast$}]{object, }
+\item[{gpointer}]{user\+\_\+data}
+\end{DoxyParamCaption}
+)}\hypertarget{simulator_8c_ac7c3c859f97c9318f833e7a5e0905a29}{}\label{simulator_8c_ac7c3c859f97c9318f833e7a5e0905a29}
+
+
+Call back function to properly destroy the resources associated with the Gtk\+Window. 
+
+
+\begin{DoxyParams}{Parameters}
+{\em object} & pointer to a Gtk\+Window \\
+\hline
+{\em user\+\_\+data} & data passed to the callback \\
+\hline
+\end{DoxyParams}
+\index{simulator.\+c@{simulator.\+c}!start\+Simulator@{start\+Simulator}}
+\index{start\+Simulator@{start\+Simulator}!simulator.\+c@{simulator.\+c}}
+\subsubsection[{\texorpdfstring{start\+Simulator(int argc, char $\ast$$\ast$argv)}{startSimulator(int argc, char **argv)}}]{\setlength{\rightskip}{0pt plus 5cm}void start\+Simulator (
+\begin{DoxyParamCaption}
+\item[{int}]{argc, }
+\item[{char $\ast$$\ast$}]{argv}
+\end{DoxyParamCaption}
+)}\hypertarget{simulator_8c_a86d8f8a2d876c8b95dc183714f8c47f7}{}\label{simulator_8c_a86d8f8a2d876c8b95dc183714f8c47f7}
+Initialize everything needed to operate the Simulator. 
+\begin{DoxyParams}{Parameters}
+{\em number} & of command line args \\
+\hline
+{\em array} & of args \\
+\hline
+\end{DoxyParams}

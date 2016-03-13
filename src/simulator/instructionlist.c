@@ -1,15 +1,22 @@
+/**
+ * @file instructionlist.c
+ * @author Nicholas Hays & Henry Lawrence
+ *
+ * @brief Builds an Instruction List GtkTreeView.  
+ */
 #include <gtk/gtk.h>
 #include "../model/controlunit.h"
 #include "helper.h"
 
 
-  /** This callback function will grab the selected row in the instruction treeview that the user is pointing to.
-	  Grabs a reference to a selection object connected to the "changed" signal (single click) */
+ /** @brief Callback function when a selected row is clicked (single-click) in the instruction TreeView.
+	  @param selection the selceted row in the GtkTreeView.
+	  @param data the data to pass into the callback function.*/
   
 static void instruction_tree_selection_changed_cb (GtkTreeSelection *selection, gpointer data){
 	
         GtkTreeIter iter;    
-        guint32 address;
+        gchar *address;
 		gchar *instruction;
 		GtkTreeModel *instruction_model = (GtkTreeModel *) data;
 
@@ -17,7 +24,7 @@ static void instruction_tree_selection_changed_cb (GtkTreeSelection *selection, 
 		{
 			gtk_tree_model_get (instruction_model, &iter, COL_ADDRESS, &address, -1);
 				
-            g_print ("Single Click: The value at address %" G_GUINT32_FORMAT, address);
+            g_print ("Single Click: The value at address %s", address);
 				
 			gtk_tree_model_get (instruction_model, &iter, COL_VALUE, &instruction, -1);
 				
@@ -29,16 +36,19 @@ static void instruction_tree_selection_changed_cb (GtkTreeSelection *selection, 
         }
 }
 
-
-/** This method will grab the selected row in the treeview that the user is pointing when
-	the user double clicks a treeview row with the "activate-on-single-click" property set to FALSE */
+/** @brief Callback function when a selected row is clicked (double-click) in the isntruction TreeView.
+	The user double clicks a treeview row with the "activate-on-single-click" property set to FALSE. 
+	 @param view the GtkTreeView.
+	 @param path the path to the row in the GtkTreeView.
+	 @param col the column in the GtkTreeView.
+	 @param user_data the data to pass into the callback function.*/
 
 void onInstrTreeViewRowActivated (GtkTreeView *view, GtkTreePath *path, GtkTreeViewColumn *col, gpointer user_data) {
 	
-  GtkTreeIter   iter;
+  GtkTreeIter iter;
   GtkTreeModel *model;
   gchar *instruction;
-  guint32 address;
+  gchar *address;
   
   model = gtk_tree_view_get_model(view);
 
@@ -47,7 +57,7 @@ void onInstrTreeViewRowActivated (GtkTreeView *view, GtkTreePath *path, GtkTreeV
 	  
    gtk_tree_model_get (model, &iter, COL_ADDRESS, &address, -1);
    
-   g_print ("Double click: The value at address %" G_GUINT32_FORMAT, address);
+   g_print ("Double click: The value at address %s", address);
 				
 			gtk_tree_model_get (model, &iter, COL_VALUE, &instruction, -1);
 				
@@ -63,13 +73,14 @@ void onInstrTreeViewRowActivated (GtkTreeView *view, GtkTreePath *path, GtkTreeV
 
 
 
-/** Initializes the TreeModel(the tree model is a generic interface used by any arbitrary store, in this
-	case we are using a store that will be a list, referred to in gtk as a "liststore") by adding 32 bit 
-	instruction values i.e "0000000..." to each row in our list.*/
+/** @brief Initializes the GtkListStore with addresses from the CPU memory to each row in the list.
+	@param mem the memory from the CPU to load.
+	@return a GtkTreeModel that represents the list store.*/
+	
 static GtkTreeModel *create_and_fill_instruction_model (Memory *mem)
 {
-  GtkListStore  *store;
-  GtkTreeIter   iter;
+  GtkListStore *store;
+  GtkTreeIter iter;
   
   store = gtk_list_store_new (NUM_INSTRUCTION_COLS, G_TYPE_STRING, G_TYPE_STRING);
   
@@ -78,6 +89,7 @@ static GtkTreeModel *create_and_fill_instruction_model (Memory *mem)
 	for(i = 0; i < mem->size; i++) 
 	{ 
 		/* Append a row and fill in some data */
+		
 		char *value = get32BitIntString(mem->read(mem, i));
 		gtk_list_store_append (store, &iter);
 		gtk_list_store_set (store, &iter,
@@ -89,16 +101,18 @@ static GtkTreeModel *create_and_fill_instruction_model (Memory *mem)
 }
 
 
-/** Creates the TreeView (a generic widget for displaying content from a tree store) with a couple columns 
-	(i.e a column for the hex address corresponding to the actual address of the instruction stored in memory, 
-	and also a column for displaying the acutal instruction at that particular address).
-	It connects the previously tree view to a list store, so that the view now has a reference to the model. */
+/** Creates the TreeView (a generic widget for displaying content from a tree store) with a 2 columns: 
+	column 1 - the hex address corresponding to the actual address of the instruction stored in memory, 
+    column 2 - displays the acutal instruction at that particular address.
+	It connects the previously tree view to a list store, so that the view now has a reference to the model.
+	@param mem the memory in the CPU that holds the instructions to view.
+	@return the TreeView widget associated with the Tree Model. */
 
 static GtkWidget *create_instruction_view_and_model (Memory *mem)
 {
-  GtkCellRenderer     *renderer;
-  GtkTreeModel        *model;
-  GtkWidget           *view;
+  GtkCellRenderer *renderer;
+  GtkTreeModel *model;
+  GtkWidget *view;
 
   view = gtk_tree_view_new ();
 
@@ -126,15 +140,15 @@ static GtkWidget *create_instruction_view_and_model (Memory *mem)
 
   gtk_tree_view_set_model (GTK_TREE_VIEW (view), model);
 
-  /* The tree view has acquired its own reference to the
-   *  model, so we can drop ours. That way the model will
-   *  be freed automatically when the tree view is destroyed */
-
   g_object_unref (model);
 
   return view;
 }
 
+
+/** @brief Constructor to initialize the instruction's TreeModel and TreeView widget. 
+	@param unit the Control Unit to pull data from.
+	@return GtkTreeView that renders the data from the its TreeStore.*/
 
 GtkWidget *instructionListConst(ControlUnit *unit) {
 	GtkTreeSelection *instruction_select; 	

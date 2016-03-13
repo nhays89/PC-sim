@@ -1,14 +1,21 @@
+/**
+ * @file registerlist.c
+ * @author Nicholas Hays & Henry Lawrence
+ *
+ * @brief Builds an Register List GtkTreeView.  
+ */
 #include <gtk/gtk.h>
 #include "../model/controlunit.h"
 #include "helper.h"
 
- /** This callback function will grab the selected row in the register treeview that the user is pointing to.
-	  Grabs a reference to a selection object connected to the "changed" signal (single click) */
+ /** @brief Callback function when a selected row is clicked (single-click) in the register TreeView.
+	  @param selection the selected row in the GtkTreeView.
+	  @param data the data to pass into the callback function.*/
 	  
 static void reg_tree_selection_changed_cb (GtkTreeSelection *selection, gpointer data) {
     GtkTreeIter iter;
     gchar *reg_num;
-	guint reg_val;
+	gchar *reg_val;
 	GtkTreeModel *reg_model = (GtkTreeModel *) data;
 
     if (gtk_tree_selection_get_selected (selection, &reg_model, &iter))
@@ -19,24 +26,30 @@ static void reg_tree_selection_changed_cb (GtkTreeSelection *selection, gpointer
 
 		gtk_tree_model_get (reg_model, &iter, REG_VAL, &reg_val, -1);
 				
-		g_print ("is: %" G_GUINT32_FORMAT, reg_val);
+		g_print ("is: %s", reg_val);
 		
 		g_print("\n");
 	
 		g_free (reg_num);
+		
+		g_free (reg_val);
     }
 }
 
 
-/** This method will grab the selected row in the treeview that the user is pointing when
-	the user double clicks a treeview row with the "activate-on-single-click" property set to FALSE */
+/** @brief Callback function when a selected row is clicked (double-click) in the register TreeView.
+	The user double clicks a treeview row with the "activate-on-single-click" property set to FALSE. 
+	 @param view the GtkTreeView.
+	 @param path the path to the row in the GtkTreeView.
+	 @param col the column in the GtkTreeView.
+	 @param user_data the data to pass into the callback function.*/
 
 void onRegTreeViewRowActivated (GtkTreeView *view, GtkTreePath *path, GtkTreeViewColumn *col, gpointer user_data) {
 	
 	GtkTreeIter iter;
 	GtkTreeModel *model;
     gchar *reg_num;
-	guint reg_val;
+	gchar *reg_val;
 	model = gtk_tree_view_get_model(view);
 	
      if (gtk_tree_model_get_iter(model, &iter, path))
@@ -47,7 +60,7 @@ void onRegTreeViewRowActivated (GtkTreeView *view, GtkTreePath *path, GtkTreeVie
 
 		gtk_tree_model_get (model, &iter, REG_VAL, &reg_val, -1);
 				
-		g_print ("is: %" G_GUINT32_FORMAT, reg_val);
+		g_print ("is: %s", reg_val);
 		
 		g_print("\n");
 	
@@ -56,10 +69,11 @@ void onRegTreeViewRowActivated (GtkTreeView *view, GtkTreePath *path, GtkTreeVie
 }
 
 
-//register model
+/** @brief Initializes the GtkListStore with values from the CPU register file, IR, and PC to each row in the list.
+	@return a GtkTreeModel that represents the list store.*/
 static GtkTreeModel *create_and_fill_register_model (void) {
-	GtkListStore  *store;
-	GtkTreeIter    iter;
+	GtkListStore *store;
+	GtkTreeIter iter;
   
 	store = gtk_list_store_new (NUM_REGISTER_COLS, G_TYPE_STRING, G_TYPE_STRING);
 	int i;
@@ -88,10 +102,16 @@ static GtkTreeModel *create_and_fill_register_model (void) {
 }
 
 
+/** Creates the TreeView (a generic widget for displaying content from a tree store) with a 2 columns: 
+	column 1 - the register number, PC, or IR.  
+    column 2 - displays the acutal value of that particular register. 
+	It connects the previously tree view to a list store, so that the view now has a reference to the model.
+	@return the TreeView widget associated with the Tree Model. */
+	
 static GtkWidget *create_register_view_and_model (void) {
-  GtkCellRenderer     *renderer;
-  GtkTreeModel        *model;
-  GtkWidget           *view;
+  GtkCellRenderer *renderer;
+  GtkTreeModel *model;
+  GtkWidget *view;
 
   view = gtk_tree_view_new ();
 
@@ -119,16 +139,14 @@ static GtkWidget *create_register_view_and_model (void) {
 
   gtk_tree_view_set_model (GTK_TREE_VIEW (view), model);
 
-  /* The tree view has acquired its own reference to the
-   *  model, so we can drop ours. That way the model will
-   *  be freed automatically when the tree view is destroyed */
-
   g_object_unref (model);
 
   return view;
 }
 
-
+/** @brief Constructor to initialize the register's TreeModel and TreeView widget. 
+	@return GtkTreeView that renders the data from the its TreeStore.*/
+	
 GtkWidget *registerListConst() {
 	GtkWidget *reg_tree_view;
 	GtkTreeSelection *reg_select;

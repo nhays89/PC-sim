@@ -1,25 +1,42 @@
+/**
+ * @file helper.c
+ * @author Nicholas Hays & Henry Lawrence
+ *
+ * @brief Helper functions to render data on TreeView widgets.  
+ */
 #include <gtk/gtk.h>
 #include <stdlib.h>
 #include <math.h>
 #include "../model/controlunit.h"
 #include "helper.h"
 
-char *intToString(int val) {
+/** @brief Converts an integer to a string. 
+	@param value an integer to convert to string
+	@return pointer to a 32 bit binary string.*/
+	
+char *intToString(int value) {
 	char *str = calloc(11, sizeof(char)); //Max chars needed for int string + null
-	sprintf(str, "%d", val);
+	sprintf(str, "%d", value);
 	return str;
 }
 
-char *getHexVal(int val) {
+/** @brief Converts a decimal integer to a hex string.  
+	@param value an integer to convert to hex
+	@return pointer to a string hex address.*/
+	
+char *getHexVal(int value) {
 	char *res = calloc(9, sizeof(char)); //2 hex vals / byte + null
-	if (val <= 0xFFFF)
+	if (value <= 0xFFFF)
 	{
-		sprintf(&res[0], "%04x", val);
+		sprintf(&res[0], "%04x", value);
 	}
 	return res;
 }
 
-
+/** @brief Gets a string representation of a 32-bit integer.  
+	@param value an integer to convert to a binary string. 
+	@return pointer to a 32 bit binary string.*/
+	
 char *get32BitIntString (int value) {
 	char *bits = calloc(32 + 1, 1);
 	int i;
@@ -33,7 +50,9 @@ char *get32BitIntString (int value) {
 	return bits;
 }
 
-
+/** @brief Updates the instruction tree view and register tree view with data from the CPU memory and register file.
+	@param data a reference to the data structure */
+	
 void refresh_lists (UpdateData *data) {
 	GtkTreeIter  iter;
 	gboolean     valid;

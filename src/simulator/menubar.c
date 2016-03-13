@@ -1,12 +1,21 @@
+/**
+ * @file menubar.c
+ * @author Nicholas Hays & Henry Lawrence
+ *
+ * @brief Provides definitions for menu bar construction.  
+ */
 #include <gtk/gtk.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include "../model/controlunit.h"
 #include "helper.h"
 
+
+/** @brief Loads the bytes from the file to UpdateData structure. 
+	@param fp the File to read.
+	@param data the UpdateData strucutre. */
 void load_memory(FILE *fp, UpdateData *data) {
-	printf("In Load Memory\n");
-	printf("Unit loaction: %p", data->unit);
+
 	ControlUnit *unit = data->unit;
 	printf("Unit pc: %d, ir: %d\n", unit->programCounter, unit->instructionRegister);
 	int *origin = malloc(sizeof(int));
@@ -15,7 +24,7 @@ void load_memory(FILE *fp, UpdateData *data) {
 	
 	char pathToStart[20];
 	int originalLoc = *origin;
-	printf("Origin %d\n", *origin);
+	
 	//convert PC to string
 	sprintf(pathToStart, "%d", originalLoc);
 	
@@ -36,6 +45,11 @@ void load_memory(FILE *fp, UpdateData *data) {
 	free(buff);
 }
 
+/** @brief Opens the file to read in bytes. 
+	@param filename the name of the file to read.
+	@param data the UserData reference to update. 
+	@return an integer representing if the file is null. */
+	
 int open_file(char *filename, UpdateData *data) {
 	FILE *fp;
 	fp = fopen(filename, "rb");
@@ -45,7 +59,9 @@ int open_file(char *filename, UpdateData *data) {
 	fclose(fp);
 	return fp != NULL;
 }
-
+/** @brief Opens the GtkFileChooser Widget to load the binaray file.
+	@param object optional argument.
+	@param user_data user data to supply to the call back function. */
 void load_binary_file(GtkWidget *object, gpointer user_data) {
 	GtkWidget *dialog;
 	GtkFileChooserAction action = GTK_FILE_CHOOSER_ACTION_OPEN;
@@ -58,7 +74,6 @@ void load_binary_file(GtkWidget *object, gpointer user_data) {
 		GtkFileChooser *chooser = GTK_FILE_CHOOSER(dialog);
 		filename = gtk_file_chooser_get_filename (chooser);
 		UpdateData *data = (UpdateData *) user_data;
-		printf("Unit loaction: %p\n", data->unit);
 		open_file (filename, data);
 		g_free (filename);
 	}
@@ -66,7 +81,10 @@ void load_binary_file(GtkWidget *object, gpointer user_data) {
 	gtk_widget_destroy(dialog);
 }
 
-/** reinitlizes the machine for a new program to be loaded. */
+/** @brief Reinitlizes the machine for a new program to be loaded. 
+	@deprecated is no longer supported. 
+	@param widget the GtkTreeView to reinit.
+	@param user_data data passed in to the function. */
 void reinitialize_machine(GtkWidget *widget, gpointer user_data) {
 	//clear memory in control unit
 	//clear registers in register file
@@ -75,6 +93,11 @@ void reinitialize_machine(GtkWidget *widget, gpointer user_data) {
 	//call refresh_lists
 }
 
+/** @brief Menubar constructor. Responsible for calling functions to load assembly file. 
+	@param instr_tree_view instruction TreeView widget.
+	@param reg_tree_view register TreeView widget.
+	@param unit ControlUnit which contains the data for the widgets.
+	@return a menu bar GtkWidget. */
 
 GtkWidget *menuBarConst(GtkWidget *instr_tree_view, GtkWidget *reg_tree_view, ControlUnit *unit) {
 	GtkWidget *menu_bar;
@@ -105,17 +128,15 @@ GtkWidget *menuBarConst(GtkWidget *instr_tree_view, GtkWidget *reg_tree_view, Co
 	
 	GtkTreeModel *instModel = gtk_tree_view_get_model(GTK_TREE_VIEW(instr_tree_view));
 	GtkTreeModel *regModel = gtk_tree_view_get_model(GTK_TREE_VIEW(reg_tree_view));
-	printf("Unit loaction: %p\n", unit);
+	
 	UpdateData *data = malloc(sizeof(UpdateData));
 	data->instView = GTK_TREE_VIEW(instr_tree_view);
 	data->instList = GTK_LIST_STORE(instModel);
 	data->regList = GTK_LIST_STORE(regModel);
 	data->unit = unit;
 	
-	printf("Unit loaction: %p\n", data->unit);
     g_signal_connect(G_OBJECT(load_program_menu_item), "activate", G_CALLBACK(load_binary_file), data);
 	g_signal_connect(G_OBJECT(reinitialize_machine_menu_item), "activate", G_CALLBACK(reinitialize_machine), data);
-	
 	
 	return menu_bar;
 }
