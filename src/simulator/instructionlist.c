@@ -101,7 +101,7 @@ static GtkTreeModel *create_and_fill_instruction_model (Memory *mem)
 }
 
 
-/** Creates the TreeView (a generic widget for displaying content from a tree store) with a 2 columns: 
+/** @brief Creates the TreeView (a generic widget for displaying content from a tree store) with a 2 columns: 
 	column 1 - the hex address corresponding to the actual address of the instruction stored in memory, 
     column 2 - displays the acutal instruction at that particular address.
 	It connects the previously tree view to a list store, so that the view now has a reference to the model.

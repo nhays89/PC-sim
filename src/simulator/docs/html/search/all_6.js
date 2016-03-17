@@ -1,8 +1,5 @@
 var searchData=
 [
-  ['main',['main',['../main_8c.html#a3c04138a5bfe5d72780bb7e82a18e627',1,'main.c']]],
-  ['main_2ec',['main.c',['../main_8c.html',1,'']]],
-  ['menubar_2ec',['menubar.c',['../menubar_8c.html',1,'']]],
-  ['menubar_2eh',['menubar.h',['../menubar_8h.html',1,'']]],
-  ['menubarconst',['menuBarConst',['../menubar_8c.html#a443d70a538af7d28b7d416bb42da9600',1,'menuBarConst(GtkWidget *instr_tree_view, GtkWidget *reg_tree_view, ControlUnit *unit):&#160;menubar.c'],['../menubar_8h.html#a8e592ade071e4ea9581b95e31a9d756a',1,'menuBarConst(GtkWidget *instructionTreeView, GtkWidget *registerTreeView, ControlUnit *unit):&#160;menubar.c']]]
+  ['load_5fbinary_5ffile',['load_binary_file',['../menubar_8c.html#a675213bacec603b6417696f130a5c1f8',1,'menubar.c']]],
+  ['load_5fmemory',['load_memory',['../menubar_8c.html#a75c9018d5e60d0403b0a5dfb056a6138',1,'menubar.c']]]
 ];
