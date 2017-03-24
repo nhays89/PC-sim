@@ -29,7 +29,7 @@ C:\MinGW\gtk\lib\gmodule-2.0
 
 **How to operate?**
 
-  1. download MinGW (gcc compilier) and pkg-config-lite (helper tool used for easy compiling -extract folder inside C:\MinGW as "pkg-config-lite"), install GTK (place inside C:\MinGW name folder as "gtk") edit system environment variables stated above. 
+  1. (if modifying src only) download MinGW (gcc compilier) and pkg-config-lite (helper tool used for easy compiling -extract folder inside C:\MinGW as "pkg-config-lite"), install GTK (place inside C:\MinGW name folder as "gtk") edit system environment variables stated above. 
   2. clone repo.
   3. run gui.exe in src/assembler.
   4. copy text from official_test1.txt into assembler gui text area (an example assembly program) or load an assembly file from your hard drive.
@@ -62,3 +62,10 @@ gui.exe
 cd ..
 
 ```
+***Assembler***
+
+![asm](https://github.com/nhays89/PC-sim/blob/master/assembler.png)
+
+***Simulator***
+
+![sim](https://github.com/nhays89/PC-sim/blob/master/simulator.png)
