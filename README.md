@@ -44,6 +44,7 @@ C:\MinGW\gtk\lib\gmodule-2.0
 
 **Batch File**
 <p> Links C modules to accomodate easy compile line execution (only needed if modifying source code)</p>
+
 ```
  
 @echo off
@@ -59,6 +60,5 @@ gcc simulator/main.c simulator/simulator.c simulator/menubar.c simulator/registe
 cd simulator
 gui.exe
 cd ..
-
 
 ```
