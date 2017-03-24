@@ -68,4 +68,4 @@ cd ..
 
 ***Simulator***
 
-![sim](https://github.com/nhays89/PC-sim/blob/master/simulator.png)
+![sim](https://github.com/nhays89/PC-sim/blob/master/sim_run.png)
